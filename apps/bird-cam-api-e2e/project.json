@@ -1,11 +1,15 @@
 {
   "name": "bird-cam-api-e2e",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "implicitDependencies": ["bird-cam-api"],
+  "implicitDependencies": [
+    "bird-cam-api"
+  ],
   "targets": {
     "e2e": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/{e2eProjectRoot}"],
+      "outputs": [
+        "{workspaceRoot}/coverage/{e2eProjectRoot}"
+      ],
       "options": {
         "jestConfig": "apps/bird-cam-api-e2e/jest.config.ts",
         "passWithNoTests": true
@@ -13,9 +17,13 @@
     },
     "lint": {
       "executor": "@nrwl/linter:eslint",
-      "outputs": ["{options.outputFile}"],
+      "outputs": [
+        "{options.outputFile}"
+      ],
       "options": {
-        "lintFilePatterns": ["apps/bird-cam-api-e2e/**/*.{js,ts}"]
+        "lintFilePatterns": [
+          "apps/bird-cam-api-e2e/**/*.{js,ts}"
+        ]
       }
     }
   }
