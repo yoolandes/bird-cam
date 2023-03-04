@@ -18,8 +18,8 @@ export class CommentsCreateComponent {
 
   onSubmit(): void {
     this.commentAdded.next({
-      text: this.profileForm.value.text,
-      author: this.profileForm.value.author
+      text: this.profileForm.controls.text.value,
+      author: this.profileForm.controls.author.value
     }
      
     );
