@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Gpio } from 'onoff';
+import { createGpio } from '../utils/gpio';
 
 @Injectable()
 export class LedService {
 
-  readonly led = new Gpio(21, 'out');
+  readonly led: Gpio = createGpio(21, 'out');
 
   private readonly timeOutDuration = 300000;
 

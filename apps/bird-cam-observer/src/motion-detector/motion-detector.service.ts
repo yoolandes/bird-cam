@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { Gpio } from 'onoff';
+import { Direction, Edge, Gpio } from 'onoff';
 import { Subject } from 'rxjs';
+import { Stream } from 'stream';
 import { SnapshotService } from '../snapshot/snapshot.service';
+import { createGpio } from '../utils/gpio';
 
 @Injectable()
 export class MotionDetectorService {
 
-  private readonly motionSensor = new Gpio(4, 'in', 'both');
-  private readonly motionThreshold = 2000;
+  private readonly motionSensor = createGpio(4, 'in', 'both');
+  private readonly motionThreshold = 8000;
 
   private motionDetectorTimeout?: NodeJS.Timeout;
 
-  private readonly motionDetected = new Subject<Blob>();
+  private readonly motionDetected = new Subject<Stream>();
   readonly motionDetected$ = this.motionDetected.asObservable();
 
   constructor(private readonly snapshotService: SnapshotService) {
@@ -32,5 +34,6 @@ export class MotionDetectorService {
     }
 
   }
+
 
 }
