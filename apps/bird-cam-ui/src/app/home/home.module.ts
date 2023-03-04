@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { IonicModule } from '@ionic/angular';
-import { FormsModule } from '@angular/forms';
 import { HomePage } from './home.page';
 
+import { CommentsModule } from '@bird-cam/comments';
 import { HomePageRoutingModule } from './home-routing.module';
+import { LiveStreamModule } from '@bird-cam/live-stream';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, HomePageRoutingModule],
+  imports: [CommentsModule, HomePageRoutingModule, IonicModule, LiveStreamModule ],
   declarations: [HomePage],
 })
 export class HomePageModule {}

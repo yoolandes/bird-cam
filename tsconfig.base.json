@@ -7,14 +7,17 @@
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "target": "es2015",
     "module": "esnext",
     "lib": ["es2017", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@bird-cam/comments": ["libs/comments/src/index.ts"],
+      "@bird-cam/live-stream": ["libs/live-stream/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

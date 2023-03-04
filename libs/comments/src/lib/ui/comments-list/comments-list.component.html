@@ -1,0 +1,18 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="end">
+            <ion-button (click)="modalController.dismiss()">  <ion-icon slot="icon-only" name="close"></ion-icon></ion-button>
+          </ion-buttons>
+        <ion-title>
+            Kommentare
+        </ion-title>
+    </ion-toolbar>
+</ion-header>
+<ion-content>
+    <ion-list>
+        <bird-cam-comments-create></bird-cam-comments-create>
+        <ng-container *ngFor="let comment of comments$ | async; last as last">
+                <bird-cam-comments-detail [lines]="last ? 'none' : 'full'" [comment]="comment"></bird-cam-comments-detail>
+        </ng-container>
+    </ion-list>
+</ion-content>
