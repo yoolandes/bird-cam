@@ -22,7 +22,6 @@ const storage = multer.diskStorage({
     TypeOrmModule.forFeature([Snapshot]),
     MulterModule.register({
       storage,
-      dest: './dist/uploads',
       limits: {
         fileSize: 50 * 1024 * 1024,
       },
