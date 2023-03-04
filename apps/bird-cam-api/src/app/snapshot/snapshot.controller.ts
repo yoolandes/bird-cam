@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UploadedFile, UseInterceptors   } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Snapshot } from './snapshot.entity';
 import { Express } from 'express';
@@ -6,17 +16,18 @@ import { Express } from 'express';
 import { SnapshotService } from './snapshot.service';
 import { CreateSnapshotDto } from './dto/create-snapshot.dto';
 
-
 @Controller('snapshot')
 export class SnapshotController {
-
   constructor(private readonly detectionService: SnapshotService) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
-  create(@Body() createDetectionDto: CreateSnapshotDto, @UploadedFile() file: any,) {
-    console.log(file);
-    // return this.detectionService.create(createDetectionDto);
+  create(
+    @Body() createSnapshotDto: CreateSnapshotDto,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    createSnapshotDto.filePath = file.path;
+    return this.detectionService.create(createSnapshotDto);
   }
 
   @Get()

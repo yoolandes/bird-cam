@@ -1,4 +1,4 @@
 export class CreateSnapshotDto {
-    base64: string;
+    filePath: string;
     date: string;
   }

@@ -6,7 +6,7 @@ export class Snapshot {
   id: number;
 
   @Column()
-  filename: string;
+  filePath: string;
 
   @Column()
   date: Date;

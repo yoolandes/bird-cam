@@ -13,22 +13,13 @@ export class SnapshotService {
     private readonly snapshotRepository: Repository<Snapshot>,
   ) {}
 
-  create(createDetectionDto: CreateSnapshotDto): any {
-    const detection = new Snapshot();
+  create(createSnapshotDto: CreateSnapshotDto): any {
+    const snapshot = new Snapshot();
 
-    const date = new Date(createDetectionDto.date);
-   
-    const filename = date.toISOString().slice(0,19).replace( /[-:]/g, '') + ".png";
-
-    detection.filename = filename;
-    detection.date =  date;
-
-    fs.writeFile("./apps/api/src/assets/" + filename, createDetectionDto.base64, 'base64', (err) => {
-        if(err) {
-            console.log(err);
-        }
-        return this.snapshotRepository.save(detection);
-      });
+    snapshot.filePath = createSnapshotDto.filePath;
+    snapshot.date =  new Date(createSnapshotDto.date);
+  
+    return this.snapshotRepository.save(snapshot);
   }
 
   async findAll(): Promise<Snapshot[]> {
