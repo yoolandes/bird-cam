@@ -26,8 +26,6 @@ export class RelativeDatePipe implements PipeTransform {
     if (!value) {
       return result;
     }
-    value = value.replace(' ', 'T');
-    value = value + '.000Z';
     const diff = Math.floor(new Date().getTime() - new Date(value).getTime());
 
     if (Math.floor(diff / this.years)) {

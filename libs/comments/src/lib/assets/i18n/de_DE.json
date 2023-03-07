@@ -1,15 +1,15 @@
 {
-    "comments": {
-        "title": "Kommentare",
-        "addComment": "Öffentlich kommentieren...",
-        "creationDate": {
-            "year": "vor {count} {count, plural, one{Jahr} other{Jahren}}",
-            "months": "vor {count} {count, plural, one{Monat} other{Monaten}}",
-            "weeks": "vor {count} {count, plural, one{Woche} other{Wochen}}",
-            "days": "vor {count} {count, plural, one{Tag} other{Tage}}",
-            "hours": "vor {count} {count, plural, one{Stunde} other{Stunden}}",
-            "minutes": "vor {count} {count, plural, one{Minute} other{Minuten}}",
-            "seconds": "vor {count} {count, plural, one{Sekunde} other{Sekunden}}"
-        }
+  "comments": {
+    "title": "Kommentare",
+    "addComment": "Öffentlich kommentieren...",
+    "creationDate": {
+      "year": "vor {count} {count, plural, one{Jahr} other{Jahren}}",
+      "months": "vor {count} {count, plural, one{Monat} other{Monaten}}",
+      "weeks": "vor {count} {count, plural, one{Woche} other{Wochen}}",
+      "days": "vor {count} {count, plural, one{Tag} other{Tage}}",
+      "hours": "vor {count} {count, plural, one{Stunde} other{Stunden}}",
+      "minutes": "vor {count} {count, plural, one{Minute} other{Minuten}}",
+      "seconds": "vor {count} {count, plural, one{Sekunde} other{Sekunden}}"
     }
+  }
 }

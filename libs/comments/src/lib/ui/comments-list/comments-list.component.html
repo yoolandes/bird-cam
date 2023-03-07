@@ -4,14 +4,14 @@
             <ion-button (click)="modalController.dismiss()">  <ion-icon slot="icon-only" name="close"></ion-icon></ion-button>
           </ion-buttons>
         <ion-title>
-            Kommentare
+           {{ 'comments.title' | translate }}
         </ion-title>
     </ion-toolbar>
 </ion-header>
 <ion-content>
+    <bird-cam-comments-create (commentAdded)="addComment($event)"></bird-cam-comments-create>
     <ion-list>
-        <bird-cam-comments-create></bird-cam-comments-create>
-        <ng-container *ngFor="let comment of comments$ | async; last as last">
+        <ng-container *ngFor="let comment of ((comments$ | async) || [] |commtentSort); last as last">
                 <bird-cam-comments-detail [lines]="last ? 'none' : 'full'" [comment]="comment"></bird-cam-comments-detail>
         </ng-container>
     </ion-list>

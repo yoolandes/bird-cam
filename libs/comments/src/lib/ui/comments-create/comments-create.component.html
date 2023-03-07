@@ -1,5 +1,20 @@
-<ion-item>
-    <ion-label>
-        Blub
-    </ion-label>
-</ion-item>
+<form (ngSubmit)="onSubmit(textInput)"
+      [formGroup]="profileForm">
+    <ion-item>
+        <ion-input #textInput
+                   formControlName="text"
+                   type="text"
+                   [placeholder]="'comments.addComment' | translate">
+        </ion-input>
+        <ion-button *ngIf="profileForm.valid"
+                    class="ion-no-padding"
+                    color="medium"
+                    fill="clear"
+                    type="submit"
+                    slot="end">
+            <ion-icon size="small"
+                      slot="icon-only"
+                      name="send-outline"></ion-icon>
+        </ion-button>
+    </ion-item>
+</form>

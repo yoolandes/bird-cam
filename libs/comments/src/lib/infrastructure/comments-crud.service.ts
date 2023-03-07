@@ -14,18 +14,18 @@ export class CommentsCrudService {
   }
 
   getComments(): Observable<Comment[]> {
-    return this.httpClient.get<Comment[]>('/api/comments');
+    return this.httpClient.get<Comment[]>('/api/comment');
   }
 
   addComment(comment: Comment): Observable<Comment> {
-    return this.httpClient.post<Comment>('/api/comments', comment);
+    return this.httpClient.post<Comment>('/api/comment', comment);
   }
 
   updateComment(comment: Comment): Observable<Comment> {
-    return this.httpClient.put<Comment>('/api/comments', comment);
+    return this.httpClient.put<Comment>('/api/comment', comment);
   }
 
   getCommentsCounts(): Observable<string> {
-    return this.httpClient.head<string>('/api/comments', {observe: 'response'}).pipe(map(resp => resp.headers.get('X-Total-Count') + ''));
+    return this.httpClient.head<string>('/api/comment', {observe: 'response'}).pipe(map(resp => resp.headers.get('X-Total-Count') + ''));
   }
 }

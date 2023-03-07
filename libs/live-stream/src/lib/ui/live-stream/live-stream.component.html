@@ -1,8 +1,9 @@
 <video
   id="video"
+  (canplay)="canPlay()"
   [srcObject]="liveStreamService.stream$| async"
   controls
   muted
   preload="auto"
   poster="./assets/img/streampreview.jpg"></video>
-<!-- <p-progressBar *ngIf="progressBarValue < 100" [showValue]="false" [value]="progressBarValue"></p-progressBar> -->
+

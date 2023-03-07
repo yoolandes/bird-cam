@@ -18,7 +18,7 @@ import { CreateSnapshotDto } from './dto/create-snapshot.dto';
 
 @Controller('snapshot')
 export class SnapshotController {
-  constructor(private readonly detectionService: SnapshotService) {}
+  constructor(private readonly snapshotService: SnapshotService) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('file'))
@@ -27,21 +27,21 @@ export class SnapshotController {
     @UploadedFile() file: Express.Multer.File
   ) {
     createSnapshotDto.filePath = file.path;
-    return this.detectionService.create(createSnapshotDto);
+    return this.snapshotService.create(createSnapshotDto);
   }
 
   @Get()
   findAll(): Promise<Snapshot[]> {
-    return this.detectionService.findAll();
+    return this.snapshotService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Snapshot> {
-    return this.detectionService.findOne(id);
+    return this.snapshotService.findOne(id);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string): Promise<void> {
-    return this.detectionService.remove(id);
+    return this.snapshotService.remove(id);
   }
 }

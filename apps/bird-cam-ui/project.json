@@ -39,7 +39,10 @@
             "input": "apps/bird-cam-ui/src/theme/variables.scss"
           }
         ],
-        "scripts": [],
+        "scripts": [
+          "node_modules/webrtc-adapter/out/adapter.js",
+          "libs/live-stream/src/lib/infrastructure/janus.js"
+        ],
         "serviceWorker": true,
         "ngswConfigPath": "apps/bird-cam-ui/ngsw-config.json"
       },

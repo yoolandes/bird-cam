@@ -2,7 +2,7 @@ export interface Comment {
     text: string;
     author: string;
     id?: number;
-    creationDate?: string;
+    createdAt?: string;
     likesCount?: number;
     pinned?: boolean;
     active?: boolean;

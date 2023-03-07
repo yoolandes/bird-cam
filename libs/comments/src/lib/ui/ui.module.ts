@@ -8,6 +8,8 @@ import { CommentsListComponent } from './comments-list/comments-list.component';
 import { CommentsDetailComponent } from './comments-detail/comments-detail.component';
 import { RelativeDatePipe } from './pipes/relative-date.pipe';
 import { CommentsCreateComponent } from './comments-create/comments-create.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { CommentSortPipe } from './pipes/commtent-sorter.pipe';
 
 @NgModule({
   declarations: [
@@ -16,8 +18,9 @@ import { CommentsCreateComponent } from './comments-create/comments-create.compo
     CommentsDetailComponent,
     RelativeDatePipe,
     CommentsCreateComponent,
+    CommentSortPipe
   ],
-  imports: [CommonModule, IonicModule, TranslateModule],
+  imports: [CommonModule, IonicModule, ReactiveFormsModule, TranslateModule],
   exports: [CommentsPreviewComponent],
 })
 export class UiModule {}

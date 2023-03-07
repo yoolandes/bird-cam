@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ModalController } from '@ionic/angular';
+import { Comment } from '../../domain/model/comment.model';
 import { CommentsCrudService } from '../../infrastructure/comments-crud.service';
 
 @Component({
@@ -9,13 +10,19 @@ import { CommentsCrudService } from '../../infrastructure/comments-crud.service'
 })
 export class CommentsListComponent {
 
-  readonly comments$ = this.commentsCrudService.getComments();
+  comments$ = this.commentsCrudService.getComments();
 
   constructor(
     private readonly commentsCrudService: CommentsCrudService,
     readonly modalController: ModalController,
     ) {
 
+  }
+
+  addComment(comment: Comment): void {
+    this.commentsCrudService.addComment(comment).subscribe(newComment => {
+      this.comments$ =  this.commentsCrudService.getComments();
+    });
   }
 
 }

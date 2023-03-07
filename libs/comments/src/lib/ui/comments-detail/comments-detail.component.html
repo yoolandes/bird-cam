@@ -1,28 +1,16 @@
 <ng-container *ngIf="comment">
     <ion-item [lines]="lines">
-        <ion-label>
-            <ion-note>
+        <ion-label class="ion-text-wrap">
+            <p>
             <span>{{comment.author}}</span>
             <span>
                 ·
             </span>
-            <span>{{(comment.creationDate | relativeDate).key | translate: {count: (comment.creationDate |
+            <span>{{(comment.createdAt | relativeDate).key | translate: {count: (comment.createdAt |
                 relativeDate).value} }}
             </span>
-        </ion-note>
-            <div>{{comment.text}}</div>
+        </p>
+            {{comment.text}}
         </ion-label>
     </ion-item>
 </ng-container>
-
-
-
-<!-- <div class="p-d-flex p-align-center action-list">
-    <div class="p-d-flex p-align-center">
-        <button class="p-button-text p-button-rounded p-button-plain" icon="far fa-thumbs-up" iconPos="right" pButton
-            (click)="onLikeButtonClick()" type="button"></button>
-        <span class="action-list likes">{{comment.likesCount}}</span>
-    </div>
-    <button class="p-button-text p-button-rounded p-button-plain" icon="far fa-comment" iconPos="right" pButton
-        type="button"></button>
-</div> -->
