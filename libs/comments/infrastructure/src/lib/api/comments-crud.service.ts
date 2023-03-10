@@ -1,8 +1,7 @@
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 import { Comment, CreateCommentDto } from '@bird-cam/comments/model';
+import { Observable } from 'rxjs';
 
 
 @Injectable({
@@ -25,7 +24,4 @@ export class CommentsCrudService {
     return this.httpClient.put<Comment>('/api/comment', comment);
   }
 
-  getCommentsCounts(): Observable<string> {
-    return this.httpClient.head<string>('/api/comment', {observe: 'response'}).pipe(map(resp => resp.headers.get('X-Total-Count') + ''));
-  }
 }

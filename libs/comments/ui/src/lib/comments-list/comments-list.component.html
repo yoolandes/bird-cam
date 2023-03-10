@@ -1,10 +1,13 @@
 <ion-header>
     <ion-toolbar>
         <ion-buttons slot="end">
-            <ion-button (click)="modalController.dismiss()">  <ion-icon slot="icon-only" name="close"></ion-icon></ion-button>
-          </ion-buttons>
+            <ion-button (click)="modalController.dismiss()">
+                <ion-icon slot="icon-only"
+                          name="close"></ion-icon>
+            </ion-button>
+        </ion-buttons>
         <ion-title>
-           {{ 'comments.title' | translate }}
+            {{ 'comments.title' | translate }}
         </ion-title>
     </ion-toolbar>
 </ion-header>
@@ -12,7 +15,8 @@
     <bird-cam-comments-create (commentAdded)="addComment($event)"></bird-cam-comments-create>
     <ion-list>
         <ng-container *ngFor="let comment of ((commentsFacade.allComments$| async) || [] | commtentSort); last as last">
-                <bird-cam-comments-detail [lines]="last ? 'none' : 'full'" [comment]="comment"></bird-cam-comments-detail>
+            <bird-cam-comments-detail [lines]="last ? 'none' : 'full'"
+                                      [comment]="comment"></bird-cam-comments-detail>
         </ng-container>
     </ion-list>
 </ion-content>
