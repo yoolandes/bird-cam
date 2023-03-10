@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Comment } from './comment.entity';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { CommentEntity } from './comment.entity';
+import { CreateCommentDto } from '@bird-cam/comments/model';
 
 @Injectable()
 export class CommentService {
   constructor(
-    @InjectRepository(Comment)
-    private readonly commentRepository: Repository<Comment>
+    @InjectRepository(CommentEntity)
+    private readonly commentRepository: Repository<CommentEntity> 
   ) {}
 
   create(createSnapshotDto: CreateCommentDto): any {
-    const comment = new Comment();
+    const comment = new CommentEntity();
 
     comment.author = createSnapshotDto.author;
     comment.text = createSnapshotDto.text;
@@ -20,11 +20,11 @@ export class CommentService {
     return this.commentRepository.save(comment);
   }
 
-  async findAll(): Promise<[Comment[], number]> {
+  async findAll(): Promise<[CommentEntity[], number]> {
     return this.commentRepository.findAndCount();
   }
 
-  findOne(id: number): Promise<Comment> {
+  findOne(id: number): Promise<CommentEntity> {
     return this.commentRepository.findOneBy({ id: id });
   }
 

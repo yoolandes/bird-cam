@@ -29,7 +29,7 @@
           "apps/bird-cam-ui/src/manifest.webmanifest",
           {
             "glob": "**/*.json",
-            "input": "./libs/comments/src/lib/assets/i18n/",
+            "input": "./libs/comments/ui/src/assets/i18n/",
             "output": "/assets/i18n/comments"
           }
         ],

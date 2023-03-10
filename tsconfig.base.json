@@ -15,7 +15,11 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@bird-cam/comments": ["libs/comments/src/index.ts"],
+      "@bird-cam/comments/infrastructure": [
+        "libs/comments/infrastructure/src/index.ts"
+      ],
+      "@bird-cam/comments/model": ["libs/comments/model/src/index.ts"],
+      "@bird-cam/comments/ui": ["libs/comments/ui/src/index.ts"],
       "@bird-cam/live-stream": ["libs/live-stream/src/index.ts"]
     }
   },

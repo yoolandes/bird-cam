@@ -1,0 +1,16 @@
+<ng-container *ngIf="comment">
+    <ion-item [lines]="lines">
+        <ion-label class="ion-text-wrap">
+            <p>
+            <span>{{comment.author}}</span>
+            <span>
+                · 
+            </span>
+            <span>{{(comment.createdAt | relativeDate).key | translate: {count: (comment.createdAt |
+                relativeDate).value} }}
+            </span>
+        </p>
+            {{comment.text}}
+        </ion-label>
+    </ion-item>
+</ng-container>

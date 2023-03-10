@@ -1,19 +1,15 @@
+import { Comment } from '@bird-cam/comments/model';
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
+  Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn
 } from 'typeorm';
 
-
 @Entity()
-export class Comment {
+export class CommentEntity implements Comment {
   @Column()
   author: string;
 
   @CreateDateColumn()
-  public createdAt: string;
+  createdAt: string;
 
   @PrimaryGeneratedColumn()
   id: number;
@@ -22,5 +18,5 @@ export class Comment {
   text: string;
 
   @UpdateDateColumn()
-  updatedAt: Date;
+  updatedAt: string;
 }

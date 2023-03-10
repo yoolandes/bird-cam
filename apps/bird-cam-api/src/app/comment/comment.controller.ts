@@ -8,10 +8,10 @@ import {
   Post,
   Res
 } from '@nestjs/common';
-import { Comment } from './comment.entity';
+import { CommentEntity } from './comment.entity';
 
 import { CommentService } from './comment.service';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreateCommentDto } from '@bird-cam/comments/model';
 
 @Controller('comment')
 export class CommentController {
@@ -25,14 +25,14 @@ export class CommentController {
   }
 
   @Get()
-  async findAll(@Res({ passthrough: true }) res): Promise<Comment[]> {
+  async findAll(@Res({ passthrough: true }) res): Promise<CommentEntity[]> {
     const [comments, count] =  await this.commentService.findAll();
     res.header('X-Total-Count', count);
     return comments;
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Comment> {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<CommentEntity> {
     return this.commentService.findOne(id);
   }
 
