@@ -5,7 +5,6 @@ import { Progress, WebrtcProgressListenerService } from '../../infrastructure/we
 @Component({
   selector: 'bird-cam-live-stream',
   templateUrl: './live-stream.component.html',
-  styleUrls: ['./live-stream.component.scss'],
 })
 export class LiveStreamComponent implements AfterViewInit {
 
