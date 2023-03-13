@@ -3,12 +3,12 @@ import { IonicModule } from '@ionic/angular';
 import { HomePage } from './home.page';
 
 import { HomePageRoutingModule } from './home-routing.module';
-import { LiveStreamModule } from '@bird-cam/live-stream';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommentsUiModule } from '@bird-cam/comments/ui';
+import { LiveStreamUiModule } from 'libs/live-stream/ui/src';
 
 @NgModule({
-  imports: [CommentsUiModule, HomePageRoutingModule, IonicModule, LiveStreamModule, TranslateModule ],
+  imports: [CommentsUiModule, HomePageRoutingModule, IonicModule, LiveStreamUiModule, TranslateModule ],
   declarations: [HomePage],
 })
 export class HomePageModule {}

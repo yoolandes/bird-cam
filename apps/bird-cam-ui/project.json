@@ -41,7 +41,7 @@
         ],
         "scripts": [
           "node_modules/webrtc-adapter/out/adapter.js",
-          "libs/live-stream/src/lib/infrastructure/janus.js"
+          "libs/live-stream/infrastructure/src/assets/janus.js"
         ],
         "serviceWorker": true,
         "ngswConfigPath": "apps/bird-cam-ui/ngsw-config.json"

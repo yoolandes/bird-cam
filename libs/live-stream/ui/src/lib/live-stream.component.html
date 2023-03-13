@@ -1,10 +1,11 @@
 <video
   class="block w-full"
   id="video"
+  [srcObject]="liveStreamFacade.stream$| async"
   (canplay)="canPlay()"
-  [srcObject]="liveStreamService.stream$| async"
   controls
   muted
   preload="auto"
   poster="./assets/img/streampreview.jpg"></video>
+
 
