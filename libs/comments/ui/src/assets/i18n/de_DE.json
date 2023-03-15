@@ -1,5 +1,4 @@
 {
-  "comments": {
     "title": "Kommentare",
     "addComment": "Öffentlich kommentieren...",
     "creationDate": {
@@ -11,5 +10,4 @@
       "minutes": "vor {count} {count, plural, one{Minute} other{Minuten}}",
       "seconds": "vor {count} {count, plural, one{Sekunde} other{Sekunden}}"
     }
-  }
 }
