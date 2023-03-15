@@ -5,15 +5,15 @@ import { CommentsListComponent } from './comments-list/comments-list.component';
 import { CommentsPreviewComponent } from './comments-preview/comments-preview.component';
 import { IonicModule } from '@ionic/angular';
 import {
-  TranslateModule,
-} from '@ngx-translate/core';
+  TranslocoModule,
+} from '@ngneat/transloco';
 import { CommentSortPipe } from './pipes/commtent-sorter.pipe';
 import { CommentsDetailComponent } from './comments-detail/comments-detail.component';
 import { RelativeDatePipe } from './pipes/relative-date.pipe';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CommentsInfrastructureModule } from 'libs/comments/infrastructure/src';
 @NgModule({
-  imports: [CommonModule, CommentsInfrastructureModule, IonicModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, CommentsInfrastructureModule, IonicModule, ReactiveFormsModule, TranslocoModule],
   declarations: [
     CommentsCreateComponent,
     CommentsListComponent,
