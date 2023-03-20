@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { Direction, Edge, Gpio } from 'onoff';
-import { Subject } from 'rxjs';
+import { catchError, filter, of, Subject } from 'rxjs';
 import { Stream } from 'stream';
+import { LoggerService } from '../logger/logger.service';
 import { SnapshotService } from '../snapshot/snapshot.service';
 import { createGpio } from '../utils/gpio';
 
 @Injectable()
 export class MotionDetectorService {
-
   private readonly motionSensor = createGpio(4, 'in', 'both');
   private readonly motionThreshold = 8000;
 
@@ -16,7 +16,10 @@ export class MotionDetectorService {
   private readonly motionDetected = new Subject<Stream>();
   readonly motionDetected$ = this.motionDetected.asObservable();
 
-  constructor(private readonly snapshotService: SnapshotService) {
+  constructor(
+    private readonly snapshotService: SnapshotService,
+    private readonly loggerService: LoggerService
+  ) {
     this.detectMotion();
   }
 
@@ -26,14 +29,23 @@ export class MotionDetectorService {
 
   private onMotion(value: number) {
     if (value === 1) {
-      this.snapshotService.getSnapshot().subscribe(snapshot => {
-        this.motionDetectorTimeout = setTimeout(() => this.motionDetected.next(snapshot), this.motionThreshold);
-      });
+      this.snapshotService
+        .getSnapshot()
+        .pipe(
+          catchError((err) => {
+            this.loggerService.error(err.message);
+            return of();
+          }),
+          filter((snapshot) => !!snapshot)
+        )
+        .subscribe((snapshot) => {
+          this.motionDetectorTimeout = setTimeout(
+            () => this.motionDetected.next(snapshot),
+            this.motionThreshold
+          );
+        });
     } else {
       clearTimeout(this.motionDetectorTimeout);
     }
-
   }
-
-
 }
