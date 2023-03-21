@@ -16,7 +16,8 @@
         "main": "apps/bird-cam-api/src/main.ts",
         "tsConfig": "apps/bird-cam-api/tsconfig.app.json",
         "assets": [
-          { "glob": "**/*", "input": "apps/bird-cam-api/docker", "output": "./" }
+          { "glob": "**/*", "input": "apps/bird-cam-api/docker", "output": "./" },
+          { "glob": ".env", "input": "apps/bird-cam-api", "output": "./" }
         ],
         "webpackConfig": "apps/bird-cam-api/webpack.config.js",
         "generatePackageJson": true
