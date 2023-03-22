@@ -44,9 +44,9 @@ export class LiveStreamService {
       server: '/janus',
       iceServers: [
         {
-          urls: 'turn:birdcam.yoolan.de',
-          username: 'test',
-          credential: 'test',
+          urls: 'turn:openrelay.metered.ca:80',
+          username: 'openrelayproject ',
+          credential: 'openrelayproject',
         },
       ],
       success: () => {
