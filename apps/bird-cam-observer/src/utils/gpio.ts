@@ -1,13 +1,16 @@
 import { Direction, Edge, Gpio } from 'onoff';
+import { LoggerService } from '../logger/logger.service';
 
 export const createGpio = (
   port: number,
   direction: Direction,
-  edge?: Edge
+  edge?: Edge,
+  logger?: LoggerService
 ): Gpio => {
   try {
     return new Gpio(port, direction, edge);
-  } catch (_) {
+  } catch (err) {
+    logger?.warn('Can not access Gpios. Running with stub.');
     return {
       write: () => undefined,
       watch: () => undefined,

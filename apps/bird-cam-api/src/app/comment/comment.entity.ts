@@ -3,7 +3,9 @@ import {
   Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn
 } from 'typeorm';
 
-@Entity()
+@Entity({
+  name: 'comment'
+})
 export class CommentEntity implements Comment {
   @Column()
   author: string;
