@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Direction, Edge, Gpio } from 'onoff';
 import { catchError, filter, of, Subject } from 'rxjs';
 import { Stream } from 'stream';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '@bird-cam/logger';
 import { SnapshotService } from '../snapshot/snapshot.service';
 import { createGpio } from '../utils/gpio';
 

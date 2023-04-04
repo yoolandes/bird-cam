@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Gpio } from 'onoff';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '@bird-cam/logger';
 import { createGpio } from '../utils/gpio';
 
 @Injectable()

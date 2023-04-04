@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { LoggerModule } from '../logger/logger.module';
+import { LoggerModule } from '@bird-cam/logger';
 import { LedController } from './led.controller';
 
 import { LedService } from './led.service';

@@ -1,5 +1,5 @@
 import { Direction, Edge, Gpio } from 'onoff';
-import { LoggerService } from '../logger/logger.service';
+import { LoggerService } from '@bird-cam/logger';
 
 export const createGpio = (
   port: number,
