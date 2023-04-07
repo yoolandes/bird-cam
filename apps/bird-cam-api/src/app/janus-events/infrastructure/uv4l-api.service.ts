@@ -46,7 +46,15 @@ export class Uv4lApiService {
     );
   }
 
+  getBirdcamSessionId(): Observable<any> {
+    return this.putGateway().pipe(
+      switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
+      map(({ data }) => data.session_id)
+    );
+  }
+
   startBirdCam(): Observable<void> {
+    this.loggerService.info('Starting birdcam...');
     return this.putGateway().pipe(
       switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
       switchMap(({ data }) =>
@@ -64,6 +72,7 @@ export class Uv4lApiService {
   }
 
   stopBirdcam(): Observable<any> {
+    this.loggerService.info('Stopping birdcam...');
     return this.httpService.post(this.birdcamHost + '/client', {
       what: 'destroy',
       plugin: 'videoroom',
