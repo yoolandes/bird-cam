@@ -1,11 +1,11 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { JanusMessage } from './dto/janus-message.dto';
+import { JanusMessage } from './model/janus-message.model';
 
-import { JanusEventsService } from './janus-events.service';
+import { JanusEventsApiService } from './infrastructure/janus-events-api.service';
 
 @Controller('events')
 export class JanusEventsController {
-  constructor(private readonly janusEventsService: JanusEventsService) {}
+  constructor(private readonly janusEventsService: JanusEventsApiService) {}
 
   @Post()
   create(@Body() messages: JanusMessage[]) {

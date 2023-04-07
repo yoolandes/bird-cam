@@ -61,7 +61,7 @@
     "@capacitor/cli": "^3.6.0",
     "@capacitor/ios": "^3.6.0",
     "@nestjs/schematics": "^9.0.0",
-    "@nestjs/testing": "^9.0.0",
+    "@nestjs/testing": "^9.4.0",
     "@ngrx/schematics": "~15.1.0",
     "@ngrx/store-devtools": "~15.0.0",
     "@nrwl/angular": "15.6.3",

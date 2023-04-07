@@ -3,7 +3,7 @@ export interface JanusMessage {
     data?: {
       event: JanusEvent;
       id: number;
-      display: string;
+      display?: string;
     };
   };
 }
