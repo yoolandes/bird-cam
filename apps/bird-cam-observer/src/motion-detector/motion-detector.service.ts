@@ -1,9 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Direction, Edge, Gpio } from 'onoff';
-import { catchError, filter, of, Subject } from 'rxjs';
-import { Stream } from 'stream';
-import { LoggerService } from '@bird-cam/logger';
-import { SnapshotService } from '../snapshot/snapshot.service';
+import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 import { createGpio } from '../utils/gpio';
 
 @Injectable()
@@ -13,13 +9,12 @@ export class MotionDetectorService {
 
   private motionDetectorTimeout?: NodeJS.Timeout;
 
-  private readonly motionDetected = new Subject<Stream>();
-  readonly motionDetected$ = this.motionDetected.asObservable();
+  private readonly motionDetected = new BehaviorSubject<boolean>(false);
+  readonly motionDetected$ = this.motionDetected
+    .asObservable()
+    .pipe(distinctUntilChanged());
 
-  constructor(
-    private readonly snapshotService: SnapshotService,
-    private readonly loggerService: LoggerService
-  ) {
+  constructor() {
     this.detectMotion();
   }
 
@@ -29,23 +24,12 @@ export class MotionDetectorService {
 
   private onMotion(value: number) {
     if (value === 1) {
-      this.snapshotService
-        .getSnapshot()
-        .pipe(
-          catchError((err) => {
-            this.loggerService.error(err.message);
-            return of();
-          }),
-          filter((snapshot) => !!snapshot)
-        )
-        .subscribe((snapshot) => {
-          this.motionDetectorTimeout = setTimeout(
-            () => this.motionDetected.next(snapshot),
-            this.motionThreshold
-          );
-        });
+      this.motionDetectorTimeout = setTimeout(() => {
+        this.motionDetected.next(true);
+      }, this.motionThreshold);
     } else {
       clearTimeout(this.motionDetectorTimeout);
+      this.motionDetected.next(false);
     }
   }
 }

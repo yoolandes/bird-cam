@@ -19,7 +19,8 @@ export class Uv4lApiService {
     private readonly loggerService: LoggerService,
     private readonly janusApiService: JanusApiService
   ) {
-    this.birdcamHost = this.configService.getOrThrow<string>('BIRDCAM_HOST');
+    this.birdcamHost =
+      this.configService.getOrThrow<string>('BIRDCAM_HOST') + '/api/janus';
     this.janusGateway = this.configService.getOrThrow<string>('JANUS_GATEWAY');
     this.janusUsername =
       this.configService.getOrThrow<string>('JANUS_USERNAME');
@@ -77,6 +78,17 @@ export class Uv4lApiService {
       what: 'destroy',
       plugin: 'videoroom',
       transaction: this.getTransaction(),
+    });
+  }
+
+  setRecording(record: boolean, recFilename: string): Observable<any> {
+    return this.httpService.post(this.birdcamHost + '/client/videoroom', {
+      what: 'configure',
+      transaction: this.getTransaction(),
+      body: {
+        record,
+        rec_filename: recFilename,
+      },
     });
   }
 

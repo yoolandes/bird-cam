@@ -1,4 +1,5 @@
 export interface JanusMessage {
+  type: number;
   event: {
     data?: {
       event: JanusEvent;
@@ -11,4 +12,6 @@ export interface JanusMessage {
 export enum JanusEvent {
   Joined = 'joined',
   Leaving = 'leaving',
+  Published = 'published',
+  Unpublished = 'unpublished',
 }

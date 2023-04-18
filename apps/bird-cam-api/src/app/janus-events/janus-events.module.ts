@@ -10,7 +10,14 @@ import { Uv4lApiService } from './infrastructure/uv4l-api.service';
 
 @Module({
   imports: [HttpModule, LoggerModule],
+  exports: [Uv4lApiService, JanusEventsApiService, JanusEventsService],
   controllers: [JanusEventsController],
-  providers: [JanusEventsApiService, JanusApiService, JanusEventHandlerService, JanusEventsService, Uv4lApiService],
+  providers: [
+    JanusEventsApiService,
+    JanusApiService,
+    JanusEventHandlerService,
+    JanusEventsService,
+    Uv4lApiService,
+  ],
 })
 export class JanusEventsModule {}

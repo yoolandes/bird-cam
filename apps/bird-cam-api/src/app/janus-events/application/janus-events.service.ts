@@ -1,7 +1,7 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Observable, partition, ReplaySubject, tap } from 'rxjs';
+import { filter, Observable, partition, ReplaySubject, tap } from 'rxjs';
 import { JanusEventsApiService } from '../infrastructure/janus-events-api.service';
 import { JanusMessage } from '../model/janus-message.model';
 import { Uv4lApiService } from '../infrastructure/uv4l-api.service';
@@ -13,6 +13,9 @@ export class JanusEventsService {
 
   readonly subscriberHasJoined = new Observable<JanusMessage>();
   readonly subscriberHasLeft = new Observable<JanusMessage>();
+
+  readonly publisherHasPublished = new Observable<JanusMessage>();
+  readonly publisherHasUnpublished = new Observable<JanusMessage>();
 
   private readonly janusUsername: string;
   private birdCamId: number;
@@ -48,6 +51,21 @@ export class JanusEventsService {
         return this.birdCamId && message.event.data?.id === this.birdCamId;
       }
     );
+
+    this.publisherHasPublished =
+      this.janusEventsApiService.userHasPublished.pipe(
+        filter(
+          (message) =>
+            this.birdCamId && message.event.data.id === this.birdCamId
+        )
+      );
+    this.publisherHasUnpublished =
+      this.janusEventsApiService.userHasUnpublished.pipe(
+        filter(
+          (message) =>
+            this.birdCamId && message.event.data.id === this.birdCamId
+        )
+      );
 
     this.subscribe();
   }
