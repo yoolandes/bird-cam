@@ -1,6 +1,6 @@
 #!/bin/bash
 
-frameCount = 0
+frame_count=0
 
 handle_brightness() {
     /opt/janus/bin/janus-pp-rec /home/recordings/recording-video-0.mjr.tmp /home/recordings/recording.mp4
@@ -16,26 +16,27 @@ handle_brightness() {
 # }
 
 
-inotifywait -q -m -r -e move /home/recordings/ | while read DIRECTORY EVENT FILE; do
-    case $EVENT in
-        
+inotifywait -q -m /home/recordings/ | while read DIRECTORY EVENT FILE; do
+  if [[ "$FILE" == *"mjr"* ]]
+  then
+     case $EVENT in
         CREATE)
-            $frameCount = 0
+	    frame_count=0
         ;;
-        
         MODIFY)
-            $frameCount++
-            if [ $frameCount = 24 ]
+	    frame_count=$(( $frame_count + 1 ))
+            if [ $frame_count -eq 24 ]
             then
-                handle_brightness
+	        handle_brightness
             fi
         ;;
-        
         CLOSE)
-            if [ $frameCount <= 24 ]
+            if [ $frame_count -lt 24 ]
             then
-                handle_brightness
+	        handle_brightness
             fi
         ;;
     esac
+  fi
 done
+
