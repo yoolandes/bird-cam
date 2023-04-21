@@ -35,14 +35,14 @@ export class JanusEventsApiService {
 
     this.userHasPublished = this.janusEvent.pipe(
       filter((message) => message.event.data?.event === JanusEvent.Published),
-      debounceTime(200),
+      debounceTime(500),
       tap(() => this.loggerService.info('User has published')),
       share()
     );
 
     this.userHasUnpublished = this.janusEvent.pipe(
       filter((message) => message.event.data?.event === JanusEvent.Unpublished),
-      debounceTime(200),
+      debounceTime(500),
       tap(() => this.loggerService.info('User has unpublished')),
       tap(console.log),
       share()
@@ -50,10 +50,6 @@ export class JanusEventsApiService {
   }
 
   publishMessage(message: JanusMessage): void {
-    if (message.type !== 32) {
-      // console.log(message);
-    }
-
     this.janusEvent.next(message);
   }
 }

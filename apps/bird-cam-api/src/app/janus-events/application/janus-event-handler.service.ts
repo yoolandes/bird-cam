@@ -1,6 +1,6 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { catchError, filter, of, switchMap, tap, zip } from 'rxjs';
+import { Observable, catchError, filter, of, switchMap, tap, zip } from 'rxjs';
 import { JanusEventsService } from '../application/janus-events.service';
 import { JanusApiService } from '../infrastructure/janus-api.service';
 import { Uv4lApiService } from '../infrastructure/uv4l-api.service';

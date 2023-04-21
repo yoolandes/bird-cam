@@ -2,8 +2,8 @@ import { LoggerService } from '@bird-cam/logger';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { map, Observable, of, switchMap, tap } from 'rxjs';
 import * as crypto from 'crypto';
+import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
 import { JanusApiService } from './janus-api.service';
 
 @Injectable()
@@ -81,19 +81,50 @@ export class Uv4lApiService {
     });
   }
 
-  setRecording(record: boolean, recFilename: string): Observable<any> {
+  stopBirdCamWhenNoSubscriber(): Observable<any> {
+    return this.janusApiService.listSessions().pipe(
+      catchError((err) => {
+        this.loggerService.error(err.message);
+        return of([]);
+      }),
+      filter((sessions: any) => sessions.length === 1),
+      switchMap(() =>
+        this.stopBirdcam().pipe(
+          catchError((err) => {
+            this.loggerService.error(err.message);
+            return of();
+          })
+        )
+      )
+    );
+  }
+
+  setRecording(record: boolean): Observable<any> {
     return this.httpService.post(this.birdcamHost + '/client/videoroom', {
       what: 'configure',
       transaction: this.getTransaction(),
       body: {
         record,
-        rec_filename: recFilename,
+        rec_filename: 'recording',
       },
     });
   }
 
-  private isBirdCamStreaming(handleInfo: any) {
+  isBirdcamRecording(): Observable<boolean> {
+    return this.httpService.get(this.birdcamHost + '/client').pipe(
+      switchMap(({ data }) =>
+        this.janusApiService.handleInfo(data.session_id, data.plugins[0].id)
+      ),
+      map((data) => this.isBirdCamRecording(data.info))
+    );
+  }
+
+  private isBirdCamStreaming(handleInfo: any): boolean {
     return handleInfo.plugin_specific.streams?.length;
+  }
+
+  private isBirdCamRecording(handleInfo: any): boolean {
+    return !!handleInfo.plugin_specific.streams[0]?.recording;
   }
 
   private createSession(): Observable<any> {
@@ -146,7 +177,6 @@ export class Uv4lApiService {
               use_hardware_videocodec: true,
               video_format_id: 95,
               record: false,
-              rec_filename: 'myrecording',
             },
           })
         )
