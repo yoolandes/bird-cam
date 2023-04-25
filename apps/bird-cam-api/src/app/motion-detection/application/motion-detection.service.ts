@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { JanusEventsService } from '../../janus-events/application/janus-events.service';
 import { Uv4lApiService } from '../../janus-events/infrastructure/uv4l-api.service';
 import { MotionDetectionEventsService } from '../motion-detection-events.service';
-import { catchError, filter, of, switchMap, tap, zip } from 'rxjs';
+import { catchError, filter, first, of, switchMap, tap, zip } from 'rxjs';
 import { RecorderService } from '../../recorder/application/recorder.service';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class MotionDetectionService {
         switchMap((isStreaming) =>
           isStreaming
             ? of(void 0)
-            : this.janusEventsService.publisherHasPublished
+            : this.janusEventsService.publisherHasPublished.pipe(first())
         ),
         switchMap(() => {
           return this.recorderService.startRecording().pipe(
@@ -40,7 +40,11 @@ export class MotionDetectionService {
         }),
         tap((recorderUuid) => (this.recorderUuid = recorderUuid))
       )
-      .subscribe(() => this.loggerService.info('Started Recording Motion'));
+      .subscribe(
+        () => this.loggerService.info('Started Recording Motion'),
+        () => {},
+        () => console.log('completed')
+      );
 
     this.motionDetectionService.motionDetected$
       .pipe(
