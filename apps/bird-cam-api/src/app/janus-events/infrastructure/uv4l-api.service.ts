@@ -3,7 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { catchError, filter, map, Observable, of, switchMap } from 'rxjs';
+import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
 import { JanusApiService } from './janus-api.service';
 
 @Injectable()
@@ -54,7 +54,7 @@ export class Uv4lApiService {
     );
   }
 
-  startBirdCam(): Observable<void> {
+  startBirdCam(): Observable<boolean> {
     this.loggerService.info('Starting birdcam...');
     return this.putGateway().pipe(
       switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
@@ -66,9 +66,8 @@ export class Uv4lApiService {
       ),
       map((data) => this.isBirdCamStreaming(data.info)),
       switchMap((isBirdCamStreaming) =>
-        isBirdCamStreaming ? of(void 0) : this.publish()
-      ),
-      map(() => void 0)
+        isBirdCamStreaming ? of(true) : this.publish()
+      )
     );
   }
 
@@ -155,7 +154,7 @@ export class Uv4lApiService {
     );
   }
 
-  private publish(): Observable<any> {
+  private publish(): Observable<boolean> {
     return this.httpService
       .post(this.birdcamHost + '/client/videoroom', {
         what: 'join',
@@ -181,7 +180,8 @@ export class Uv4lApiService {
               record: false,
             },
           })
-        )
+        ),
+        map(() => false)
       );
   }
 }

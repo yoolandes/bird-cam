@@ -8,6 +8,8 @@ import { RecorderService } from '../../recorder/application/recorder.service';
 
 @Injectable()
 export class MotionDetectionService {
+  private recorderUuid: string | undefined;
+
   constructor(
     private readonly motionDetectionService: MotionDetectionEventsService,
     private readonly uv4lApiService: Uv4lApiService,
@@ -22,7 +24,11 @@ export class MotionDetectionService {
         ),
         filter((motionDetected) => motionDetected),
         switchMap(() => this.uv4lApiService.startBirdCam()),
-        switchMap(() => this.janusEventsService.publisherHasPublished),
+        switchMap((isStreaming) =>
+          isStreaming
+            ? of(void 0)
+            : this.janusEventsService.publisherHasPublished
+        ),
         switchMap(() => {
           return this.recorderService.startRecording().pipe(
             catchError((err) => {
@@ -32,12 +38,15 @@ export class MotionDetectionService {
             })
           );
         }),
-        switchMap((recorderUuid) =>
-          zip(of(recorderUuid), this.motionDetectionService.motionDetected$)
-        ),
-        filter(([_, motionDetected]) => !motionDetected),
-        switchMap(([recorderUuid, _]) => {
-          return this.recorderService.stopRecording(recorderUuid).pipe(
+        tap((recorderUuid) => (this.recorderUuid = recorderUuid))
+      )
+      .subscribe(() => this.loggerService.info('Started Recording Motion'));
+
+    this.motionDetectionService.motionDetected$
+      .pipe(
+        filter((motionDetected) => !motionDetected),
+        switchMap(() => {
+          return this.recorderService.stopRecording(this.recorderUuid).pipe(
             catchError((err) => {
               this.loggerService.info('Cant stop recording');
               this.loggerService.error(err.message);
@@ -45,8 +54,10 @@ export class MotionDetectionService {
             })
           );
         }),
+        tap(() => (this.recorderUuid = undefined)),
+        tap(() => this.loggerService.info('Stopped Recording Motion')),
         switchMap(() => this.uv4lApiService.stopBirdCamWhenNoSubscriber())
       )
-      .subscribe(() => {});
+      .subscribe();
   }
 }
