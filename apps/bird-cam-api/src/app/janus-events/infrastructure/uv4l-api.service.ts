@@ -112,19 +112,21 @@ export class Uv4lApiService {
 
   isBirdcamRecording(): Observable<boolean> {
     return this.httpService.get(this.birdcamHost + '/client').pipe(
-      switchMap(({ data }) =>
-        this.janusApiService.handleInfo(data.session_id, data.plugins[0].id)
-      ),
+      switchMap(({ data }) => {
+        return data.session_id
+          ? this.janusApiService.handleInfo(data.session_id, data.plugins[0].id)
+          : of({});
+      }),
       map((data) => this.isBirdCamRecording(data.info))
     );
   }
 
   private isBirdCamStreaming(handleInfo: any): boolean {
-    return handleInfo.plugin_specific.streams?.length;
+    return handleInfo?.plugin_specific?.streams?.length;
   }
 
   private isBirdCamRecording(handleInfo: any): boolean {
-    return !!handleInfo.plugin_specific.streams[0]?.recording;
+    return !!handleInfo?.plugin_specific?.streams[0]?.recording;
   }
 
   private createSession(): Observable<any> {

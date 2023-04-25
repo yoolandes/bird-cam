@@ -25,7 +25,7 @@ export class RecorderService {
       switchMap((isBirdcamRecording) =>
         isBirdcamRecording && !this.recordingQueue.size
           ? this.uv4lApiService.setRecording(false)
-          : void 0
+          : of(void 0)
       ),
       map(() => void 0)
     );
