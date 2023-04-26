@@ -33,7 +33,7 @@ export class JanusApiService {
     return this.postJanus('handle_info', session + '/' + handle);
   }
 
-  listParticipants(path?: string): Observable<any> {
+  listParticipants(path: string): Observable<any> {
     const data = JSON.stringify({
       janus: 'message',
       admin_secret: this.janusAdminSecret,
@@ -46,6 +46,26 @@ export class JanusApiService {
     return this.httpService
       .post(this.janusRestUrl + path, data)
       .pipe(map((res) => res.data.plugindata.data.participants));
+  }
+
+  setRecording(
+    session: string,
+    handle: string,
+    record: boolean
+  ): Observable<void> {
+    const data = JSON.stringify({
+      janus: 'message',
+      admin_secret: this.janusAdminSecret,
+      transaction: crypto.randomUUID(),
+      body: {
+        request: 'configure',
+        record,
+        rec_filename: 'recording',
+      },
+    });
+    return this.httpService
+      .post(this.janusRestUrl + session + '/' + handle, data)
+      .pipe(map(() => void 0));
   }
 
   private postJanus(janus: string, path?: string): Observable<any> {
