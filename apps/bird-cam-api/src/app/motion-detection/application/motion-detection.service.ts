@@ -1,10 +1,9 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { JanusEventsService } from '../../janus-events/application/janus-events.service';
-import { Uv4lApiService } from '../../janus-events/infrastructure/uv4l-api.service';
-import { MotionDetectionEventsService } from '../motion-detection-events.service';
-import { catchError, filter, first, of, switchMap, tap, zip } from 'rxjs';
+import { catchError, filter, of, switchMap, tap } from 'rxjs';
+import { StreamingService } from '../../janus-events/application/streaming.service';
 import { RecorderService } from '../../recorder/application/recorder.service';
+import { MotionDetectionEventsService } from '../motion-detection-events.service';
 
 @Injectable()
 export class MotionDetectionService {
@@ -12,10 +11,9 @@ export class MotionDetectionService {
 
   constructor(
     private readonly motionDetectionService: MotionDetectionEventsService,
-    private readonly uv4lApiService: Uv4lApiService,
+    private readonly streamingService: StreamingService,
     private readonly recorderService: RecorderService,
-    private readonly loggerService: LoggerService,
-    private readonly janusEventsService: JanusEventsService
+    private readonly loggerService: LoggerService
   ) {
     this.motionDetectionService.motionDetected$
       .pipe(
@@ -23,12 +21,8 @@ export class MotionDetectionService {
           this.loggerService.info('Motion detected ' + motionDetected)
         ),
         filter((motionDetected) => motionDetected),
-        switchMap(() => this.uv4lApiService.startBirdCam()),
-        switchMap((isStreaming) =>
-          isStreaming
-            ? of(void 0)
-            : this.janusEventsService.publisherHasPublished.pipe(first())
-        ),
+        switchMap(() => this.streamingService.startBirdCam()),
+        tap(() => console.log('starting recording')),
         switchMap(() => {
           return this.recorderService.startRecording().pipe(
             catchError((err) => {
@@ -49,6 +43,7 @@ export class MotionDetectionService {
     this.motionDetectionService.motionDetected$
       .pipe(
         filter((motionDetected) => !motionDetected),
+        tap(() => console.log('stopping recording')),
         switchMap(() => {
           return this.recorderService.stopRecording(this.recorderUuid).pipe(
             catchError((err) => {
@@ -60,7 +55,7 @@ export class MotionDetectionService {
         }),
         tap(() => (this.recorderUuid = undefined)),
         tap(() => this.loggerService.info('Stopped Recording Motion')),
-        switchMap(() => this.uv4lApiService.stopBirdCamWhenNoSubscriber())
+        switchMap(() => this.streamingService.stopBirdCamWhenNoSubscriber())
       )
       .subscribe();
   }

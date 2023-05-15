@@ -60,7 +60,7 @@ export class JanusApiService {
       body: {
         request: 'configure',
         record,
-        rec_filename: 'recording',
+        filename: 'recording',
       },
     });
     return this.httpService

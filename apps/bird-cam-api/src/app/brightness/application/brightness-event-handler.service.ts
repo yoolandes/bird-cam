@@ -18,7 +18,7 @@ export class BrightnessEventHandlerService {
       .pipe(
         switchMap(() => this.recorderService.startRecording()),
         tap(() => console.log('set brightness recording true')),
-        delay(2000),
+        delay(3000),
         switchMap((uuid) => this.recorderService.stopRecording(uuid)),
         tap(() => console.log('set brightness recording false'))
       )

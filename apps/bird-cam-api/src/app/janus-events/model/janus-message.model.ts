@@ -14,4 +14,5 @@ export enum JanusEvent {
   Leaving = 'leaving',
   Published = 'published',
   Unpublished = 'unpublished',
+  Configured = 'configured',
 }

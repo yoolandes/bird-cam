@@ -1,10 +1,9 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { filter, Observable, partition, ReplaySubject, tap } from 'rxjs';
+import { filter, Observable, partition, tap } from 'rxjs';
 import { JanusEventsApiService } from '../infrastructure/janus-events-api.service';
 import { JanusMessage } from '../model/janus-message.model';
-import { Uv4lApiService } from '../infrastructure/uv4l-api.service';
 
 @Injectable()
 export class JanusEventsService {
@@ -23,15 +22,10 @@ export class JanusEventsService {
   constructor(
     private readonly configService: ConfigService,
     private readonly loggerService: LoggerService,
-    private readonly janusEventsApiService: JanusEventsApiService,
-    private readonly uv4lApiService: Uv4lApiService
+    private readonly janusEventsApiService: JanusEventsApiService
   ) {
     this.janusUsername =
       this.configService.getOrThrow<string>('JANUS_USERNAME');
-
-    this.uv4lApiService
-      .getBirdCamId(this.janusUsername)
-      .subscribe((sessionId) => (this.birdCamId = sessionId));
 
     let publisherHasJoined: Observable<JanusMessage>;
 
@@ -85,5 +79,9 @@ export class JanusEventsService {
     this.subscriberHasLeft.subscribe(() =>
       this.loggerService.warn('Subscriber has left')
     );
+  }
+
+  setBirdCamId(birdcamId: number) {
+    this.birdCamId = birdcamId;
   }
 }

@@ -18,6 +18,8 @@ export class JanusEventsApiService {
   readonly userHasPublished = new Observable<JanusMessage>();
   readonly userHasUnpublished = new Observable<JanusMessage>();
 
+  readonly configured = new Observable<JanusMessage>();
+
   private readonly janusEvent = new ReplaySubject<JanusMessage>();
 
   constructor(private readonly loggerService: LoggerService) {
@@ -47,9 +49,18 @@ export class JanusEventsApiService {
       tap(console.log),
       share()
     );
+
+    this.configured = this.janusEvent.pipe(
+      filter((message) => message.event.data?.event === JanusEvent.Configured),
+      tap(() => this.loggerService.info('Room was configured')),
+      share()
+    );
   }
 
   publishMessage(message: JanusMessage): void {
+    if (message.type !== 32) {
+      console.log(message);
+    }
     this.janusEvent.next(message);
   }
 }

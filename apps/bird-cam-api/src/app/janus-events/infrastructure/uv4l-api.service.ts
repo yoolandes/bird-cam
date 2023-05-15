@@ -1,10 +1,21 @@
-import { LoggerService } from '@bird-cam/logger';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import { catchError, filter, map, Observable, of, switchMap, tap } from 'rxjs';
-import { JanusApiService } from './janus-api.service';
+import {
+  catchError,
+  map,
+  Observable,
+  of,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
+
+export interface SessionInfo {
+  sessionId: string;
+  handle: string;
+}
 
 @Injectable()
 export class Uv4lApiService {
@@ -15,9 +26,7 @@ export class Uv4lApiService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService,
-    private readonly loggerService: LoggerService,
-    private readonly janusApiService: JanusApiService
+    private readonly configService: ConfigService
   ) {
     this.birdcamHost =
       this.configService.getOrThrow<string>('BIRDCAM_HOST') + '/api/janus';
@@ -27,135 +36,58 @@ export class Uv4lApiService {
     this.janusRoom = this.configService.getOrThrow<string>('JANUS_ROOM');
   }
 
-  getBirdCamId(janusUsername: string): Observable<number> {
+  getPath(): Observable<SessionInfo> {
     return this.putGateway().pipe(
       switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
-      switchMap(({ data }) =>
-        data.session_id
-          ? this.janusApiService
-              .listParticipants(`${data.session_id}/${data.plugins[0].id}`)
-              .pipe(
-                map(
-                  (participants) =>
-                    participants.find(
-                      (participant) => participant.display === janusUsername
-                    )?.id || ''
-                )
-              )
-          : of('')
-      )
+      map(({ data }) => ({
+        sessionId: data.session_id,
+        handle: data.plugins[0]?.id,
+      }))
     );
   }
 
-  getBirdcamSessionId(): Observable<any> {
-    return this.putGateway().pipe(
-      switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
-      map(({ data }) => data.session_id)
-    );
-  }
-
-  startBirdCam(): Observable<boolean> {
-    this.loggerService.info('Starting birdcam...');
-    return this.putGateway().pipe(
-      switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
-      switchMap(({ data }) =>
-        data.session_id ? of({ data }) : this.createSession()
-      ),
-      switchMap(({ data }) =>
-        this.janusApiService.handleInfo(data.session_id, data.plugins[0].id)
-      ),
-      map((data) => this.isBirdCamStreaming(data.info)),
-      switchMap((isBirdCamStreaming) =>
-        isBirdCamStreaming ? of(true) : this.publish()
-      )
-    );
-  }
-
-  stopBirdcam(): Observable<any> {
-    this.loggerService.info('Stopping birdcam...');
-    return this.httpService.post(this.birdcamHost + '/client', {
-      what: 'destroy',
-      plugin: 'videoroom',
-      transaction: this.getTransaction(),
-    });
-  }
-
-  stopBirdCamWhenNoSubscriber(): Observable<any> {
-    return this.janusApiService.listSessions().pipe(
-      catchError((err) => {
-        this.loggerService.error(err.message);
-        return of([]);
-      }),
-      filter((sessions: any) => sessions.length === 1),
-      switchMap(() =>
-        this.stopBirdcam().pipe(
-          catchError((err) => {
-            this.loggerService.error(err.message);
-            return of();
-          })
-        )
-      )
-    );
-  }
-
-  setRecording(record: boolean): Observable<any> {
-    return this.httpService.post(this.birdcamHost + '/client/videoroom', {
-      what: 'configure',
-      transaction: this.getTransaction(),
-      body: {
-        record,
-        rec_filename: 'recording',
-      },
-    });
-  }
-
-  isBirdcamRecording(): Observable<boolean> {
-    return this.httpService.get(this.birdcamHost + '/client').pipe(
-      switchMap(({ data }) => {
-        return data.session_id
-          ? this.janusApiService.handleInfo(data.session_id, data.plugins[0].id)
-          : of({});
-      }),
-      map((data) => this.isBirdCamRecording(data.info))
-    );
-  }
-
-  private isBirdCamStreaming(handleInfo: any): boolean {
-    return handleInfo?.plugin_specific?.streams?.length;
-  }
-
-  private isBirdCamRecording(handleInfo: any): boolean {
-    return !!handleInfo?.plugin_specific?.streams[0]?.recording;
-  }
-
-  private createSession(): Observable<any> {
-    return this.httpService.post(this.birdcamHost + '/client', {
-      what: 'create',
-      plugin: 'videoroom',
-      transaction: this.getTransaction(),
-    });
+  createSession(): Observable<SessionInfo> {
+    return this.httpService
+      .post(this.birdcamHost + '/client', {
+        what: 'create',
+        plugin: 'videoroom',
+        transaction: this.getTransaction(),
+      })
+      .pipe(
+        map(({ data }) => ({
+          sessionId: data.session_id,
+          handle: data.plugins[0]?.id,
+        })),
+        catchError((err) => {
+          console.log(err);
+          return of(err);
+        })
+      );
   }
 
   private getTransaction(): string {
     return crypto.randomUUID();
   }
 
-  private putGateway(): Observable<any> {
+  putGateway(): Observable<any> {
     return this.httpService.get(this.birdcamHost + '/client/settings').pipe(
+      tap(({ data }) => console.log(data.gateway.url)),
       switchMap(({ data }: any) =>
-        this.httpService.put(this.birdcamHost + '/client/settings', {
-          ...data,
-          gateway: {
-            ...data.gateway,
-            url: this.janusGateway,
-          },
-        })
+        data.gateway.url
+          ? of(void 0)
+          : this.httpService.put(this.birdcamHost + '/client/settings', {
+              ...data,
+              gateway: {
+                ...data.gateway,
+                url: this.janusGateway,
+              },
+            })
       )
     );
   }
 
-  private publish(): Observable<boolean> {
-    return this.httpService
+  join(): Observable<void> {
+    this.httpService
       .post(this.birdcamHost + '/client/videoroom', {
         what: 'join',
         transaction: this.getTransaction(),
@@ -165,23 +97,79 @@ export class Uv4lApiService {
         },
       })
       .pipe(
-        switchMap(() =>
-          this.httpService.post(this.birdcamHost + '/client/videoroom', {
-            what: 'publish',
-            transaction: this.getTransaction(),
-            body: {
-              audio: false,
-              video: true,
-              data: false,
-              adjust_max_bitrate_for_hardware_videocodec: true,
-              max_bitrate_bits: 0,
-              use_hardware_videocodec: true,
-              video_format_id: 95,
-              record: false,
-            },
-          })
-        ),
-        map(() => false)
+        catchError((err) => {
+          console.log(err);
+          return of(err);
+        })
+      )
+      .subscribe();
+    return of(void 0);
+  }
+
+  publish(): Observable<any> {
+    return this.httpService
+      .post(this.birdcamHost + '/client/videoroom', {
+        what: 'publish',
+        transaction: this.getTransaction(),
+        body: {
+          audio: false,
+          video: true,
+          data: false,
+          adjust_max_bitrate_for_hardware_videocodec: true,
+          max_bitrate_bits: 0,
+          use_hardware_videocodec: true,
+          video_format_id: 30,
+          record: false,
+        },
+      })
+      .pipe(
+        catchError((err) => {
+          console.log(err);
+          return of(err);
+        })
+      );
+  }
+
+  unpublish(): Observable<any> {
+    return this.httpService
+      .post(this.birdcamHost + '/client/videoroom', {
+        what: 'unpublish',
+        transaction: this.getTransaction(),
+      })
+      .pipe(
+        catchError((err) => {
+          console.log('unpub');
+          console.log(err);
+          return of(err);
+        })
+      );
+  }
+
+  destroy(): Observable<any> {
+    return this.httpService
+      .post(this.birdcamHost + '/client', {
+        what: 'destroy',
+        plugin: 'videoroom',
+        transaction: this.getTransaction(),
+      })
+      .pipe(
+        catchError((err) => {
+          console.log('dest');
+          console.log(err);
+          return of(err);
+        })
+      );
+  }
+
+  stop(): Observable<any> {
+    return this.httpService
+      .get('http://192.168.178.46:8080/janus?action=Stop')
+      .pipe(
+        catchError((err) => {
+          console.log('stop');
+          console.log(err);
+          return of(err);
+        })
       );
   }
 }

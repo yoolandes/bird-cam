@@ -7,6 +7,7 @@ import { JanusEventHandlerService } from './application/janus-event-handler.serv
 import { LoggerModule } from '@bird-cam/logger';
 import { JanusEventsService } from './application/janus-events.service';
 import { Uv4lApiService } from './infrastructure/uv4l-api.service';
+import { StreamingService } from './application/streaming.service';
 
 @Module({
   imports: [HttpModule, LoggerModule],
@@ -15,6 +16,7 @@ import { Uv4lApiService } from './infrastructure/uv4l-api.service';
     JanusEventsApiService,
     JanusEventsService,
     JanusApiService,
+    StreamingService,
   ],
   controllers: [JanusEventsController],
   providers: [
@@ -23,6 +25,7 @@ import { Uv4lApiService } from './infrastructure/uv4l-api.service';
     JanusEventHandlerService,
     JanusEventsService,
     Uv4lApiService,
+    StreamingService,
   ],
 })
 export class JanusEventsModule {}
