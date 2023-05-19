@@ -2,15 +2,10 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
-import {
-  catchError,
-  map,
-  Observable,
-  of,
-  switchMap,
-  tap,
-  throwError,
-} from 'rxjs';
+import { catchError, map, Observable, of, switchMap, tap } from 'rxjs';
+
+import { createRxJsQueue } from '@bird-cam/rxjs-queue';
+import { LoggerService } from '@bird-cam/logger';
 
 export interface SessionInfo {
   sessionId: string;
@@ -24,9 +19,12 @@ export class Uv4lApiService {
   private readonly janusUsername: string;
   private readonly janusRoom: string;
 
+  private readonly queue = createRxJsQueue();
+
   constructor(
     private readonly httpService: HttpService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly loggerService: LoggerService
   ) {
     this.birdcamHost =
       this.configService.getOrThrow<string>('BIRDCAM_HOST') + '/api/janus';
@@ -39,10 +37,12 @@ export class Uv4lApiService {
   getPath(): Observable<SessionInfo> {
     return this.putGateway().pipe(
       switchMap(() => this.httpService.get(this.birdcamHost + '/client')),
+      tap(() => this.loggerService.log('getPath')),
       map(({ data }) => ({
         sessionId: data.session_id,
         handle: data.plugins[0]?.id,
-      }))
+      })),
+      this.queue()
     );
   }
 
@@ -54,6 +54,7 @@ export class Uv4lApiService {
         transaction: this.getTransaction(),
       })
       .pipe(
+        tap(() => this.loggerService.log('createSession')),
         map(({ data }) => ({
           sessionId: data.session_id,
           handle: data.plugins[0]?.id,
@@ -61,7 +62,8 @@ export class Uv4lApiService {
         catchError((err) => {
           console.log(err);
           return of(err);
-        })
+        }),
+        this.queue()
       );
   }
 
@@ -71,17 +73,19 @@ export class Uv4lApiService {
 
   putGateway(): Observable<any> {
     return this.httpService.get(this.birdcamHost + '/client/settings').pipe(
-      tap(({ data }) => console.log(data.gateway.url)),
+      tap(() => this.loggerService.log('putGateway')),
       switchMap(({ data }: any) =>
         data.gateway.url
           ? of(void 0)
-          : this.httpService.put(this.birdcamHost + '/client/settings', {
-              ...data,
-              gateway: {
-                ...data.gateway,
-                url: this.janusGateway,
-              },
-            })
+          : this.httpService
+              .put(this.birdcamHost + '/client/settings', {
+                ...data,
+                gateway: {
+                  ...data.gateway,
+                  url: this.janusGateway,
+                },
+              })
+              .pipe(this.queue())
       )
     );
   }
@@ -100,7 +104,9 @@ export class Uv4lApiService {
         catchError((err) => {
           console.log(err);
           return of(err);
-        })
+        }),
+        tap(() => this.loggerService.log('join')),
+        this.queue()
       )
       .subscribe();
     return of(void 0);
@@ -123,10 +129,12 @@ export class Uv4lApiService {
         },
       })
       .pipe(
+        tap(() => this.loggerService.log('publish')),
         catchError((err) => {
           console.log(err);
           return of(err);
-        })
+        }),
+        this.queue()
       );
   }
 
@@ -137,11 +145,13 @@ export class Uv4lApiService {
         transaction: this.getTransaction(),
       })
       .pipe(
+        tap(() => this.loggerService.log('unpublish')),
         catchError((err) => {
           console.log('unpub');
           console.log(err);
           return of(err);
-        })
+        }),
+        this.queue()
       );
   }
 
@@ -153,23 +163,13 @@ export class Uv4lApiService {
         transaction: this.getTransaction(),
       })
       .pipe(
+        tap(() => this.loggerService.log('destroy')),
         catchError((err) => {
           console.log('dest');
           console.log(err);
           return of(err);
-        })
-      );
-  }
-
-  stop(): Observable<any> {
-    return this.httpService
-      .get('http://192.168.178.46:8080/janus?action=Stop')
-      .pipe(
-        catchError((err) => {
-          console.log('stop');
-          console.log(err);
-          return of(err);
-        })
+        }),
+        this.queue()
       );
   }
 }
