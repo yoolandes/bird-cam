@@ -4,6 +4,7 @@ import { JanusEventsService } from '../../janus-events/application/janus-events.
 import { RecorderService } from '../../recorder/application/recorder.service';
 import { BrightnessEventsService } from '../brightness-events.service';
 import { LedApiService } from '../infrastructure/led-api.service';
+import { LoggerService } from '@bird-cam/logger';
 
 @Injectable()
 export class BrightnessEventHandlerService {
@@ -11,31 +12,32 @@ export class BrightnessEventHandlerService {
     private readonly janusEventsService: JanusEventsService,
     private readonly recorderService: RecorderService,
     private readonly brightnessEventsService: BrightnessEventsService,
-    private readonly ledApiService: LedApiService
+    private readonly ledApiService: LedApiService,
+    private readonly loggerService: LoggerService
   ) {
     this.janusEventsService.publisherHasPublished
       .pipe(
         switchMap(() => this.recorderService.startRecording()),
-        tap(() => console.log('set brightness recording true')),
+        tap(() => this.loggerService.log('set brightness recording true')),
         delay(3000),
         switchMap((uuid) => this.recorderService.stopRecording(uuid)),
-        tap(() => console.log('set brightness recording false'))
+        tap(() => this.loggerService.log('set brightness recording false'))
       )
       .subscribe();
 
     this.brightnessEventsService.brightness$
       .pipe(
-        tap(console.log),
+        tap((brightness) => this.loggerService.log(brightness + '')),
         filter((brightness) => brightness < 0.3),
         switchMap(() => this.ledApiService.switchOn()),
-        tap(() => console.log('switched light on'))
+        tap(() => this.loggerService.log('switched light on'))
       )
       .subscribe();
 
     this.janusEventsService.publisherHasLeft
       .pipe(
         switchMap(() => this.ledApiService.switchOff()),
-        tap(() => console.log('switched light off'))
+        tap(() => this.loggerService.log('switched light off'))
       )
       .subscribe();
   }

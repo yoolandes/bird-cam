@@ -59,10 +59,6 @@ export class Uv4lApiService {
           sessionId: data.session_id,
           handle: data.plugins[0]?.id,
         })),
-        catchError((err) => {
-          console.log(err);
-          return of(err);
-        }),
         this.queue()
       );
   }
@@ -101,10 +97,6 @@ export class Uv4lApiService {
         },
       })
       .pipe(
-        catchError((err) => {
-          console.log(err);
-          return of(err);
-        }),
         tap(() => this.loggerService.log('join')),
         this.queue()
       )
@@ -130,10 +122,6 @@ export class Uv4lApiService {
       })
       .pipe(
         tap(() => this.loggerService.log('publish')),
-        catchError((err) => {
-          console.log(err);
-          return of(err);
-        }),
         this.queue()
       );
   }
@@ -146,11 +134,6 @@ export class Uv4lApiService {
       })
       .pipe(
         tap(() => this.loggerService.log('unpublish')),
-        catchError((err) => {
-          console.log('unpub');
-          console.log(err);
-          return of(err);
-        }),
         this.queue()
       );
   }
@@ -164,11 +147,6 @@ export class Uv4lApiService {
       })
       .pipe(
         tap(() => this.loggerService.log('destroy')),
-        catchError((err) => {
-          console.log('dest');
-          console.log(err);
-          return of(err);
-        }),
         this.queue()
       );
   }

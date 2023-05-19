@@ -33,7 +33,6 @@ export class StreamingService {
     this.loggerService.info('Starting birdcam...');
 
     return this.uv4lApiService.getPath().pipe(
-      tap(console.log),
       switchMap((sessionInfo) =>
         sessionInfo.sessionId
           ? of(sessionInfo)

@@ -22,7 +22,7 @@ export class MotionDetectionService {
         ),
         filter((motionDetected) => motionDetected),
         switchMap(() => this.streamingService.startBirdCam()),
-        tap(() => console.log('starting recording')),
+        tap(() => this.loggerService.log('starting recording')),
         switchMap(() => {
           return this.recorderService.startRecording().pipe(
             catchError((err) => {
@@ -34,16 +34,12 @@ export class MotionDetectionService {
         }),
         tap((recorderUuid) => (this.recorderUuid = recorderUuid))
       )
-      .subscribe(
-        () => this.loggerService.info('Started Recording Motion'),
-        () => {},
-        () => console.log('completed')
-      );
+      .subscribe(() => this.loggerService.info('Started Recording Motion'));
 
     this.motionDetectionService.motionDetected$
       .pipe(
         filter((motionDetected) => !motionDetected),
-        tap(() => console.log('stopping recording')),
+        tap(() => this.loggerService.log('stopping recording')),
         switchMap(() => {
           return this.recorderService.stopRecording(this.recorderUuid).pipe(
             catchError((err) => {
