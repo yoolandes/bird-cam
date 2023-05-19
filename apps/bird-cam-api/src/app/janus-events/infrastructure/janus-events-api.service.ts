@@ -46,7 +46,6 @@ export class JanusEventsApiService {
       filter((message) => message.event.data?.event === JanusEvent.Unpublished),
       debounceTime(500),
       tap(() => this.loggerService.info('User has unpublished')),
-      tap(console.log),
       share()
     );
 
@@ -59,7 +58,7 @@ export class JanusEventsApiService {
 
   publishMessage(message: JanusMessage): void {
     if (message.type !== 32) {
-      console.log(message);
+      // console.log(message);
     }
     this.janusEvent.next(message);
   }

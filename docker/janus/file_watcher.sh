@@ -51,7 +51,7 @@ inotifywait -q -m /home/recordings/ | while read DIRECTORY EVENT FILE; do
                     handle_motion
                 fi
             ;;
-            CLOSE)
+            MOVED_TO)
                 echo "close"
                 echo $frame_count
                 if [ $frame_count -lt 24 ]

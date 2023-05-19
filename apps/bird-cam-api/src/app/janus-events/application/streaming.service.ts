@@ -66,7 +66,6 @@ export class StreamingService {
       ),
       switchMap(() => this.uv4lApiService.destroy())
     );
-    // return this.uv4lApiService.stop();
   }
 
   stopBirdCamWhenNoSubscriber(): Observable<any> {

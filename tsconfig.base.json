@@ -25,7 +25,8 @@
       ],
       "@bird-cam/live-stream/model": ["libs/live-stream/model/src/index.ts"],
       "@bird-cam/live-stream/ui": ["libs/live-stream/ui/src/index.ts"],
-      "@bird-cam/logger": ["libs/logger/src/index.ts"]
+      "@bird-cam/logger": ["libs/logger/src/index.ts"],
+      "@bird-cam/rxjs-queue": ["libs/rxjs-queue/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { delay, filter, switchMap, tap } from 'rxjs';
 import { JanusEventsService } from '../../janus-events/application/janus-events.service';
-import { Uv4lApiService } from '../../janus-events/infrastructure/uv4l-api.service';
+import { RecorderService } from '../../recorder/application/recorder.service';
 import { BrightnessEventsService } from '../brightness-events.service';
 import { LedApiService } from '../infrastructure/led-api.service';
-import { RecorderService } from '../../recorder/application/recorder.service';
 
 @Injectable()
 export class BrightnessEventHandlerService {
