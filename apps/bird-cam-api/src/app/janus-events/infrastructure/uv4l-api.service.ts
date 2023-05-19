@@ -114,7 +114,7 @@ export class Uv4lApiService {
           video: true,
           data: false,
           adjust_max_bitrate_for_hardware_videocodec: true,
-          max_bitrate_bits: 0,
+          max_bitrate_bits: 900000,
           use_hardware_videocodec: true,
           video_format_id: 30,
           record: false,

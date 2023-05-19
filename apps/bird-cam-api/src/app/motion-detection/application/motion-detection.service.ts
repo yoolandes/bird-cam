@@ -1,6 +1,16 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { catchError, filter, of, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  of,
+  switchMap,
+  tap,
+  throttle,
+  throttleTime,
+} from 'rxjs';
 import { StreamingService } from '../../janus-events/application/streaming.service';
 import { RecorderService } from '../../recorder/application/recorder.service';
 import { MotionDetectionEventsService } from '../motion-detection-events.service';
@@ -15,7 +25,13 @@ export class MotionDetectionService {
     private readonly recorderService: RecorderService,
     private readonly loggerService: LoggerService
   ) {
-    this.motionDetectionService.motionDetected$
+    const motionDetectedDebounced$ =
+      this.motionDetectionService.motionDetected$.pipe(
+        throttleTime(10000, undefined, { leading: true, trailing: true }),
+        distinctUntilChanged()
+      );
+
+    motionDetectedDebounced$
       .pipe(
         tap((motionDetected) =>
           this.loggerService.info('Motion detected ' + motionDetected)
@@ -36,7 +52,7 @@ export class MotionDetectionService {
       )
       .subscribe(() => this.loggerService.info('Started Recording Motion'));
 
-    this.motionDetectionService.motionDetected$
+    motionDetectedDebounced$
       .pipe(
         filter((motionDetected) => !motionDetected),
         tap(() => this.loggerService.log('stopping recording')),

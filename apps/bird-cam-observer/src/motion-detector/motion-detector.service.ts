@@ -1,3 +1,4 @@
+import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 import { createGpio } from '../utils/gpio';
@@ -5,16 +6,13 @@ import { createGpio } from '../utils/gpio';
 @Injectable()
 export class MotionDetectorService {
   private readonly motionSensor = createGpio(4, 'in', 'both');
-  private readonly motionThreshold = 8000;
-
-  private motionDetectorTimeout?: NodeJS.Timeout;
 
   private readonly motionDetected = new BehaviorSubject<boolean>(false);
   readonly motionDetected$ = this.motionDetected
     .asObservable()
     .pipe(distinctUntilChanged());
 
-  constructor() {
+  constructor(private readonly loggerService: LoggerService) {
     this.detectMotion();
   }
 
@@ -23,13 +21,7 @@ export class MotionDetectorService {
   }
 
   private onMotion(value: number) {
-    if (value === 1) {
-      this.motionDetectorTimeout = setTimeout(() => {
-        this.motionDetected.next(true);
-      }, this.motionThreshold);
-    } else {
-      clearTimeout(this.motionDetectorTimeout);
-      this.motionDetected.next(false);
-    }
+    this.loggerService.log('Detected motion with value: ' + value);
+    this.motionDetected.next(value === 1);
   }
 }
