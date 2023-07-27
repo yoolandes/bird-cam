@@ -1,1 +1,2 @@
-<ion-progress-bar [value]="progress$ | async"></ion-progress-bar>
+<ion-progress-bar *ngIf="(liveStreamFacade.liveStreamProgress$| async) !== streamProgress.Streaming"
+                  [value]="progress$ | async"></ion-progress-bar>

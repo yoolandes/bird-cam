@@ -21,7 +21,7 @@ export class LiveStreamService {
   private readonly stream = new ReplaySubject<any>();
   readonly stream$ = this.stream.asObservable();
 
-  private readonly progress = new Subject<StreamProgress>();
+  readonly progress = new Subject<StreamProgress>();
   readonly progress$ = this.progress.asObservable();
 
   getStream(): void {
@@ -44,9 +44,9 @@ export class LiveStreamService {
       server: '/janus',
       iceServers: [
         {
-          urls: 'turn:openrelay.metered.ca:80',
-          username: 'openrelayproject ',
-          credential: 'openrelayproject',
+          urls: 'turn:a.relay.metered.ca:80',
+          username: '06857f7aa8f2eade65c72205',
+          credential: 'x6azWvpCiK4/xJJK',
         },
       ],
       success: () => {

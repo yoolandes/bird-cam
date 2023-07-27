@@ -1,4 +1,5 @@
 import { AfterViewInit, Component } from '@angular/core';
+import { StreamProgress } from '@bird-cam/live-stream/model';
 import { LiveStreamFacade } from 'libs/live-stream/infrastructure/src/lib/+state/live-stream.facade';
 
 @Component({
@@ -6,19 +7,12 @@ import { LiveStreamFacade } from 'libs/live-stream/infrastructure/src/lib/+state
   templateUrl: './live-stream.component.html',
 })
 export class LiveStreamComponent implements AfterViewInit {
-
-  constructor(
-    readonly liveStreamFacade: LiveStreamFacade,
-    ) {
-
-  }
+  constructor(readonly liveStreamFacade: LiveStreamFacade) {}
   ngAfterViewInit(): void {
     this.liveStreamFacade.initLiveStream();
   }
 
   canPlay(): void {
-    // this.webrtcProgressListenerService.changeProgress(Progress.Streaming);
+    this.liveStreamFacade.setProgress(StreamProgress.Streaming);
   }
-
-  
 }

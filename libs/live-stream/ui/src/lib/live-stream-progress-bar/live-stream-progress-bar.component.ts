@@ -10,7 +10,9 @@ import { map, Observable } from 'rxjs';
 export class LiveStreamProgressBarComponent {
   readonly progress$: Observable<number>;
 
-  constructor(private readonly liveStreamFacade: LiveStreamFacade) {
+  readonly streamProgress = StreamProgress;
+
+  constructor(readonly liveStreamFacade: LiveStreamFacade) {
     this.progress$ = this.liveStreamFacade.liveStreamProgress$.pipe(
       map(this.normalize)
     );

@@ -1,6 +1,16 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { catchError, filter, of, switchMap, tap, zip } from 'rxjs';
+import {
+  catchError,
+  delay,
+  filter,
+  of,
+  retry,
+  retryWhen,
+  switchMap,
+  tap,
+  zip,
+} from 'rxjs';
 import { JanusEventsService } from '../application/janus-events.service';
 import { JanusApiService } from '../infrastructure/janus-api.service';
 import { Uv4lApiService } from '../infrastructure/uv4l-api.service';
@@ -10,7 +20,6 @@ import { StreamingService } from './streaming.service';
 export class JanusEventHandlerService {
   constructor(
     private readonly janusEventsService: JanusEventsService,
-    private readonly uv4lApiService: Uv4lApiService,
     private readonly loggerService: LoggerService,
     private readonly janusApiService: JanusApiService,
     private readonly streamingService: StreamingService
@@ -45,7 +54,8 @@ export class JanusEventHandlerService {
           }
 
           return of(void 0);
-        })
+        }),
+        retry({ delay: 10000 })
       )
       .subscribe();
   }

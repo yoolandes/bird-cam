@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -43,9 +43,10 @@ export class JanusApiService {
         room: 1234,
       },
     });
-    return this.httpService
-      .post(this.janusRestUrl + path, data)
-      .pipe(map((res) => res.data.plugindata.data.participants));
+    return this.httpService.post(this.janusRestUrl + path, data).pipe(
+      map(this.checkError),
+      map((res) => res.data.plugindata.data.participants)
+    );
   }
 
   setRecording(
@@ -65,7 +66,10 @@ export class JanusApiService {
     });
     return this.httpService
       .post(this.janusRestUrl + session + '/' + handle, data)
-      .pipe(map(() => void 0));
+      .pipe(
+        map(this.checkError),
+        map(() => void 0)
+      );
   }
 
   private postJanus(janus: string, path?: string): Observable<any> {
@@ -74,8 +78,16 @@ export class JanusApiService {
       transaction: crypto.randomUUID(),
       admin_secret: this.janusAdminSecret,
     });
-    return this.httpService
-      .post(this.janusAdminUrl + path, data)
-      .pipe(map((res) => res.data));
+    return this.httpService.post(this.janusAdminUrl + path, data).pipe(
+      map(this.checkError),
+      map((res) => res.data)
+    );
+  }
+
+  private checkError(res: any) {
+    if (res.data.janus === 'error') {
+      throw new Error(res.data.error.reason);
+    }
+    return res;
   }
 }

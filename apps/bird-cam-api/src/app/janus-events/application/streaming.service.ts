@@ -86,25 +86,27 @@ export class StreamingService {
   }
 
   getBirdCamId(): Observable<number> {
-    return this.uv4lApiService
-      .getPath()
-      .pipe(
-        switchMap(({ sessionId, handle }) =>
-          sessionId
-            ? this.janusApiService
-                .listParticipants(`${sessionId}/${handle}`)
-                .pipe(
-                  map(
-                    (participants) =>
-                      participants.find(
-                        (participant) =>
-                          participant.display === this.janusUsername
-                      )?.id || ''
-                  )
+    return this.uv4lApiService.getPath().pipe(
+      switchMap(({ sessionId, handle }) =>
+        sessionId
+          ? this.janusApiService
+              .listParticipants(`${sessionId}/${handle}`)
+              .pipe(
+                catchError((err) => {
+                  this.loggerService.error(err);
+                  return this.uv4lApiService.destroy().pipe(map(() => []));
+                }),
+                map(
+                  (participants) =>
+                    participants.find(
+                      (participant) =>
+                        participant.display === this.janusUsername
+                    )?.id || ''
                 )
-            : of('')
-        )
-      );
+              )
+          : of('')
+      )
+    );
   }
 
   private isBirdCamStreamingInternal(handleInfo: any): boolean {

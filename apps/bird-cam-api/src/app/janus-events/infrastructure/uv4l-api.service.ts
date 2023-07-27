@@ -58,8 +58,7 @@ export class Uv4lApiService {
         map(({ data }) => ({
           sessionId: data.session_id,
           handle: data.plugins[0]?.id,
-        })),
-        this.queue()
+        }))
       );
   }
 
