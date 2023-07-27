@@ -6,4 +6,5 @@ services:
       - /home/pi/janus-docker/configs:/opt/janus/etc/janus
       - /home/pi/janus-docker/recordings:/home/recordings
     tty: true
-    network_mode: "host"      
+    network_mode: "host"    
+    restart: always  
