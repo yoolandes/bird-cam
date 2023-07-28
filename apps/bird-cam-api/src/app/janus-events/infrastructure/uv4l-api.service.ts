@@ -69,19 +69,17 @@ export class Uv4lApiService {
   putGateway(): Observable<any> {
     return this.httpService.get(this.birdcamHost + '/client/settings').pipe(
       tap(() => this.loggerService.log('putGateway')),
-      switchMap(({ data }: any) =>
-        data.gateway.url
+      switchMap(({ data }: any) => {
+        return data.gateway.url
           ? of(void 0)
-          : this.httpService
-              .put(this.birdcamHost + '/client/settings', {
-                ...data,
-                gateway: {
-                  ...data.gateway,
-                  url: this.janusGateway,
-                },
-              })
-              .pipe(this.queue())
-      )
+          : this.httpService.put(this.birdcamHost + '/client/settings', {
+              ...data,
+              gateway: {
+                ...data.gateway,
+                url: this.janusGateway,
+              },
+            });
+      })
     );
   }
 
