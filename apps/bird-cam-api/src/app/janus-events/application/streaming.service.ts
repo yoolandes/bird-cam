@@ -3,11 +3,13 @@ import { Injectable } from '@nestjs/common';
 import {
   Observable,
   catchError,
+  delay,
   filter,
   first,
   map,
   of,
   switchMap,
+  takeWhile,
   tap,
 } from 'rxjs';
 import { JanusApiService } from '../infrastructure/janus-api.service';
@@ -18,6 +20,8 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class StreamingService {
   private readonly janusUsername: string;
+  private stoppingCam = false;
+
   constructor(
     private readonly janusEventsService: JanusEventsService,
     private readonly uv4lApiService: Uv4lApiService,
@@ -31,6 +35,7 @@ export class StreamingService {
 
   startBirdCam(): Observable<any> {
     this.loggerService.info('Starting birdcam...');
+    this.stoppingCam = false;
 
     return this.uv4lApiService.getPath().pipe(
       switchMap((sessionInfo) =>
@@ -42,6 +47,10 @@ export class StreamingService {
         this.janusApiService.handleInfo(sessionId, handle)
       ),
       map((data) => this.isBirdCamStreamingInternal(data.info)),
+      catchError((err) => {
+        this.loggerService.error(err);
+        return this.uv4lApiService.destroy().pipe(map(() => false));
+      }),
       switchMap((isBirdCamStreaming) =>
         isBirdCamStreaming
           ? of(void 0)
@@ -74,6 +83,9 @@ export class StreamingService {
         return of([]);
       }),
       filter((sessions: any) => sessions.length === 1),
+      tap(() => (this.stoppingCam = true)),
+      delay(10000),
+      takeWhile(() => this.stoppingCam),
       switchMap(() =>
         this.stopBirdcam().pipe(
           catchError((err) => {
