@@ -40,11 +40,11 @@ RUN ./configure --prefix=/opt/janus --enable-post-processing
 RUN make
 RUN make install
 RUN make configs
-COPY ./configs/* /opt/janus/etc/janus/
 RUN apt-get install -y ffmpeg
 RUN apt-get install -y inotify-tools
 RUN apt-get install -y imagemagick
 WORKDIR /opt/janus/bin
+COPY ./configs/* /opt/janus/etc/janus/ 
 COPY ./entrypoint.sh ./entrypoint.sh
 COPY ./file_watcher.sh /home/file_watcher.sh
 RUN ["chmod", "+x", "./entrypoint.sh"]
