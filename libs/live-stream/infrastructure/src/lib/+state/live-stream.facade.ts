@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { StreamProgress } from '@bird-cam/live-stream/model';
-import { LiveStreamService } from '../api/live-stream.service';
+import { LiveStreamService } from '../api/streaming.service';
 
 @Injectable()
 export class LiveStreamFacade {

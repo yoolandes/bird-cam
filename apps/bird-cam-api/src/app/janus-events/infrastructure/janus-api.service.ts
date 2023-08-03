@@ -21,7 +21,7 @@ export class JanusApiService {
       this.configService.getOrThrow<string>('JANUS_ADMIN_SECRET');
   }
 
-  listSessions(): Observable<any[]> {
+  listSessions(): Observable<string[]> {
     return this.postJanus('list_sessions').pipe(map((res) => res.sessions));
   }
 
