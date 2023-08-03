@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { EffectsModule } from '@ngrx/effects';
 import { StoreModule, Store } from '@ngrx/store';
-import { readFirst } from '@nrwl/angular/testing';
+import { readFirst } from '@nx/angular/testing';
 
 import * as CommentsActions from './comments.actions';
 import { CommentsEffects } from './comments.effects';

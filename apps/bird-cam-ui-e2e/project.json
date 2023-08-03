@@ -5,7 +5,7 @@
   "projectType": "application",
   "targets": {
     "e2e": {
-      "executor": "@nrwl/cypress:cypress",
+      "executor": "@nx/cypress:cypress",
       "options": {
         "cypressConfig": "apps/bird-cam-ui-e2e/cypress.config.ts",
         "devServerTarget": "bird-cam-ui:serve:development",
@@ -18,19 +18,13 @@
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
-      "outputs": [
-        "{options.outputFile}"
-      ],
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "apps/bird-cam-ui-e2e/**/*.{js,ts}"
-        ]
+        "lintFilePatterns": ["apps/bird-cam-ui-e2e/**/*.{js,ts}"]
       }
     }
   },
   "tags": [],
-  "implicitDependencies": [
-    "bird-cam-ui"
-  ]
+  "implicitDependencies": ["bird-cam-ui"]
 }
