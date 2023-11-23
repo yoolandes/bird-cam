@@ -2,28 +2,25 @@ import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import {
   catchError,
-  debounceTime,
   distinctUntilChanged,
   filter,
   of,
   switchMap,
   tap,
-  throttle,
   throttleTime,
 } from 'rxjs';
 import { StreamingService } from '../../janus-events/application/streaming.service';
-import { RecorderService } from '../../recorder/application/recorder.service';
+import { SnapshotService } from '../../snapshot/application/snapshot.service';
 import { MotionDetectionEventsService } from '../motion-detection-events.service';
 
 @Injectable()
 export class MotionDetectionService {
-  private recorderUuid: string | undefined;
-
   constructor(
     private readonly motionDetectionService: MotionDetectionEventsService,
     private readonly streamingService: StreamingService,
-    private readonly recorderService: RecorderService,
-    private readonly loggerService: LoggerService
+    private readonly snapshotService: SnapshotService,
+    private readonly loggerService: LoggerService,
+    private readonly snapshotRepoService: SnapshotService
   ) {
     const motionDetectedDebounced$ =
       this.motionDetectionService.motionDetected$.pipe(
@@ -37,10 +34,8 @@ export class MotionDetectionService {
           this.loggerService.info('Motion detected ' + motionDetected)
         ),
         filter((motionDetected) => motionDetected),
-        switchMap(() => this.streamingService.startBirdCam()),
-        tap(() => this.loggerService.log('starting recording')),
         switchMap(() => {
-          return this.recorderService.startRecording().pipe(
+          return this.snapshotService.captureSnapshot().pipe(
             catchError((err) => {
               this.loggerService.info('Cant start recording');
               this.loggerService.error(err.message);
@@ -48,26 +43,9 @@ export class MotionDetectionService {
             })
           );
         }),
-        tap((recorderUuid) => (this.recorderUuid = recorderUuid))
-      )
-      .subscribe(() => this.loggerService.info('Started Recording Motion'));
-
-    motionDetectedDebounced$
-      .pipe(
-        filter((motionDetected) => !motionDetected),
-        tap(() => this.loggerService.log('stopping recording')),
-        switchMap(() => {
-          return this.recorderService.stopRecording(this.recorderUuid).pipe(
-            catchError((err) => {
-              this.loggerService.info('Cant stop recording');
-              this.loggerService.error(err.message);
-              return of();
-            })
-          );
-        }),
-        tap(() => (this.recorderUuid = undefined)),
-        tap(() => this.loggerService.info('Stopped Recording Motion')),
-        switchMap(() => this.streamingService.stopBirdCamWhenNoSubscriber())
+        tap((buffer: Uint8Array) =>
+          this.snapshotRepoService.createFromFile(buffer, new Date())
+        )
       )
       .subscribe();
   }

@@ -10,11 +10,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Snapshot } from './snapshot.entity';
 import { Express } from 'express';
 
-import { SnapshotService } from './snapshot.service';
-import { CreateSnapshotDto } from './dto/create-snapshot.dto';
+import { SnapshotService } from '../application/snapshot.service';
+import { CreateSnapshotDto } from './model/create-snapshot.dto';
+import { Snapshot } from './model/snapshot.entity';
 
 @Controller('snapshot')
 export class SnapshotController {

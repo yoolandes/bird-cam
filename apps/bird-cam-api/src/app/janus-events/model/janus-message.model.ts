@@ -3,6 +3,7 @@ export interface JanusMessage {
   event: {
     plugin: Plugin;
     name: Name;
+    opaque_id: string;
     data?: {
       event: JanusEvent;
       id: number;
@@ -18,6 +19,7 @@ export enum Plugin {
 
 export enum Name {
   Attached = 'attached',
+  Detached = 'detached',
 }
 
 export enum JanusEvent {

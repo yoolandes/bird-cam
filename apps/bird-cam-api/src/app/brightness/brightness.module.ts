@@ -5,7 +5,6 @@ import { BrightnessController } from './brightness.controller';
 import { BrightnessEventHandlerService } from './application/brightness-event-handler.service';
 import { LedApiService } from './infrastructure/led-api.service';
 import { HttpModule } from '@nestjs/axios';
-import { RecorderModule } from '../recorder/recorder.module';
 import { LoggerModule } from '@bird-cam/logger';
 
 @Module({
@@ -15,6 +14,6 @@ import { LoggerModule } from '@bird-cam/logger';
     BrightnessEventHandlerService,
     LedApiService,
   ],
-  imports: [JanusEventsModule, HttpModule, RecorderModule, LoggerModule],
+  imports: [JanusEventsModule, HttpModule, LoggerModule],
 })
 export class BrightnessModule {}

@@ -8,6 +8,7 @@ RUN npm install
 ENV PATH /home/node_modules/.bin:$PATH
 
 WORKDIR /home/app
+RUN apk add  --no-cache ffmpeg
 
 CMD [ "node", "main.js" ]
 

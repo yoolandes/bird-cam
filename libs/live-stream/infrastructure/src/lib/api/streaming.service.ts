@@ -9,14 +9,6 @@ declare const Janus: any;
 })
 export class LiveStreamService {
   private janus: any;
-  private videoRoomPluginHandle: any;
-
-  private readonly roomId = 1234;
-
-  private myid = null;
-  private mypvtid = null;
-
-  private readonly feeds: any[] = [];
 
   private readonly stream = new ReplaySubject<any>();
   readonly stream$ = this.stream.asObservable();
@@ -25,8 +17,6 @@ export class LiveStreamService {
   readonly progress$ = this.progress.asObservable();
 
   streaming: any;
-
-  selectedStream: any;
 
   getStream(): void {
     if (!Janus.isWebrtcSupported()) {
@@ -57,40 +47,14 @@ export class LiveStreamService {
     var body = { request: 'stop' };
     this.streaming.send({ message: body });
     this.streaming.hangup();
-
-    // if(bitrateTimer)
-    //   clearInterval(bitrateTimer);
-    // bitrateTimer = null;
-
-    // simulcastStarted = false;
-  }
-
-  getStreamInfo() {
-    // if (!this.selectedStream) return;
-    // var body = {
-    //   request: 'info',
-    //   id: parseInt(this.selectedStream) || this.selectedStream,
-    // };
-    // this.streaming.send({
-    //   message: body,
-    //   success: (result: any) => {
-    //     this.startStream(99);
-    //   },
-    // });
   }
 
   startStream() {
-    // Janus.log('Selected video id #' + this.selectedStream);
-    // if (!this.selectedStream) {
-    //   return;
-    // }
     var body = {
       request: 'watch',
       id: 99,
     };
     this.streaming.send({ message: body });
-    // Get some more info for the mountpoint to display, if any
-    this.getStreamInfo();
   }
 
   private attachPlugin(): void {
@@ -135,27 +99,6 @@ export class LiveStreamService {
                   this.stopStream();
                 }
               } else if (msg['streaming'] === 'event') {
-                // var substream = result["substream"];
-                // var temporal = result["temporal"];
-                // if((substream !== null && substream !== undefined) || (temporal !== null && temporal !== undefined)) {
-                // 	if(!simulcastStarted) {
-                // 		simulcastStarted = true;
-                // 		addSimulcastButtons(temporal !== null && temporal !== undefined);
-                // 	}
-                // 	// We just received notice that there's been a switch, update the buttons
-                // 	updateSimulcastButtons(substream, temporal);
-                // }
-                // // Is VP9/SVC in place?
-                // var spatial = result["spatial_layer"];
-                // temporal = result["temporal_layer"];
-                // if((spatial !== null && spatial !== undefined) || (temporal !== null && temporal !== undefined)) {
-                // 	if(!svcStarted) {
-                // 		svcStarted = true;
-                // 		addSvcButtons();
-                // 	}
-                // 	// We just received notice that there's been a switch, update the buttons
-                // 	updateSvcButtons(spatial, temporal);
-                // }
               }
             } else if (msg['error']) {
               this.stopStream();

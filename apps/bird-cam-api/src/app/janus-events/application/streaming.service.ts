@@ -4,152 +4,85 @@ import {
   Observable,
   catchError,
   delay,
+  exhaustMap,
   filter,
-  first,
   map,
   of,
   switchMap,
   takeWhile,
   tap,
 } from 'rxjs';
-import { JanusApiService } from '../infrastructure/janus-api.service';
-import { Uv4lApiService } from '../infrastructure/uv4l-api.service';
-import { JanusEventsService } from './janus-events.service';
-import { ConfigService } from '@nestjs/config';
-import Janode from 'janode';
-const { Logger } = Janode;
-import StreamingPlugin from 'janode/plugins/streaming';
+import { JanusAdminApiService } from '../infrastructure/janus-admin-api.service';
+import { JanusStreamingApiService } from '../infrastructure/janus-streaming-api.service';
+import { StreamingApiService } from '../infrastructure/streaming-api.service';
+import { JanodeService } from './janode-api.service';
 
 @Injectable()
 export class StreamingService {
   private stoppingCam = false;
 
   constructor(
-    private readonly janusEventsService: JanusEventsService,
-    private readonly uv4lApiService: Uv4lApiService,
+    private readonly streamingApiService: StreamingApiService,
     private readonly loggerService: LoggerService,
-    private readonly janusApiService: JanusApiService,
-    private readonly configService: ConfigService
+    private readonly janusAdminApiService: JanusAdminApiService,
+    private readonly janusStreamingApiService: JanusStreamingApiService,
+    private readonly janodeService: JanodeService
   ) {}
 
-  async createMountpoint(): Promise<any> {
-    const connection = await Janode.connect({
-      is_admin: false,
-      address: {
-        url: 'ws://192.168.178.80:8188/',
-        apisecret: 'secret',
-      },
-    });
-    const session = await connection.create();
-
-    const echoHandle = await session.attach(StreamingPlugin);
+  initMountpoint(): Observable<boolean> {
+    this.loggerService.info('Init Mountpoint...');
+    return this.janodeService.attachStreamingPlugin().pipe(
+      exhaustMap((sessionInfo) =>
+        this.janusStreamingApiService
+          .listMountpoints(sessionInfo)
+          .pipe(map((mountpoints) => ({ sessionInfo, mountpoints })))
+      ),
+      exhaustMap(({ sessionInfo, mountpoints }) => {
+        if (mountpoints.length > 0) {
+          return of(void 0);
+        }
+        return this.janusStreamingApiService.createMountpoint(sessionInfo);
+      }),
+      switchMap(() => this.janodeService.detachStreamingPlugin()),
+      map(() => true)
+    );
   }
 
-  startBirdCam(): Observable<any> {
-    return of(true);
-    // this.loggerService.info('Starting birdcam...');
-    // this.stoppingCam = false;
-
-    // return this.uv4lApiService.getPath().pipe(
-    //   switchMap((sessionInfo) =>
-    //     sessionInfo.sessionId
-    //       ? of(sessionInfo)
-    //       : this.uv4lApiService.createSession()
-    //   ),
-    //   switchMap(({ handle, sessionId }) =>
-    //     this.janusApiService.handleInfo(sessionId, handle)
-    //   ),
-    //   map((data) => this.isBirdCamStreamingInternal(data.info)),
-    //   catchError((err) => {
-    //     this.loggerService.error(err);
-    //     return this.uv4lApiService.destroy().pipe(map(() => false));
-    //   }),
-    //   switchMap((isBirdCamStreaming) =>
-    //     isBirdCamStreaming
-    //       ? of(void 0)
-    //       : this.uv4lApiService.join().pipe(
-    //           switchMap(() => this.janusEventsService.publisherHasJoined),
-    //           first(),
-    //           switchMap(() => this.uv4lApiService.publish()),
-    //           switchMap(() =>
-    //             this.janusEventsService.publisherHasPublished.pipe(first())
-    //           )
-    //         )
-    //   )
-    // );
+  startBirdCam(): Observable<boolean> {
+    this.loggerService.info('Starting birdcam...');
+    this.stoppingCam = false;
+    return this.streamingApiService
+      .start()
+      .pipe(tap(() => this.loggerService.info('Birdcam started!')));
   }
 
   stopBirdcam(): Observable<any> {
-    return of(true);
-    // this.loggerService.info('Stopping birdcam...');
-    // return this.uv4lApiService.unpublish().pipe(
-    //   switchMap(() =>
-    //     this.janusEventsService.publisherHasUnpublished.pipe(first())
-    //   ),
-    //   switchMap(() => this.uv4lApiService.destroy())
-    // );
+    this.loggerService.info('Stopping birdcam...');
+    return this.streamingApiService
+      .stop()
+      .pipe(tap(() => this.loggerService.info('Birdcam stopped!')));
   }
 
   stopBirdCamWhenNoSubscriber(): Observable<any> {
-    return of(true);
-    // return this.janusApiService.listSessions().pipe(
-    //   catchError((err) => {
-    //     this.loggerService.error(err.message);
-    //     return of([]);
-    //   }),
-    //   filter((sessions: any) => sessions.length === 1),
-    //   tap(() => (this.stoppingCam = true)),
-    //   delay(10000),
-    //   takeWhile(() => this.stoppingCam),
-    //   switchMap(() =>
-    //     this.stopBirdcam().pipe(
-    //       catchError((err) => {
-    //         this.loggerService.error(err.message);
-    //         return of();
-    //       })
-    //     )
-    //   )
-    // );
-  }
-
-  getBirdCamId(): Observable<number> {
-    return of(1);
-    // return this.uv4lApiService.getPath().pipe(
-    //   switchMap(({ sessionId, handle }) =>
-    //     sessionId
-    //       ? this.janusApiService
-    //           .listParticipants(`${sessionId}/${handle}`)
-    //           .pipe(
-    //             catchError((err) => {
-    //               this.loggerService.error(err);
-    //               return this.uv4lApiService.destroy().pipe(map(() => []));
-    //             }),
-    //             map(
-    //               (participants) =>
-    //                 participants.find(
-    //                   (participant) =>
-    //                     participant.display === this.janusUsername
-    //                 )?.id || ''
-    //             )
-    //           )
-    //       : of('')
-    //   )
-    // );
-  }
-
-  private isBirdCamStreamingInternal(handleInfo: any): boolean {
-    return handleInfo?.plugin_specific?.streams?.length;
-  }
-
-  isBirdcamStreaming(): Observable<boolean> {
-    return of(true);
-    // return this.uv4lApiService.getPath().pipe(
-    //   switchMap(({ handle, sessionId }) => {
-    //     return sessionId
-    //       ? this.janusApiService.handleInfo(sessionId, handle)
-    //       : of({});
-    //   }),
-    //   map((data) => this.isBirdCamStreamingInternal(data.info))
-    // );
+    return this.janusAdminApiService.listSessions().pipe(
+      catchError((err) => {
+        this.loggerService.error(err.message);
+        return of([]);
+      }),
+      tap(() => (this.stoppingCam = true)),
+      delay(5000),
+      switchMap((sessions: any) => {
+        if (this.stoppingCam && sessions.length === 0) {
+          return this.stopBirdcam().pipe(
+            catchError((err) => {
+              this.loggerService.error(err.message);
+              return of();
+            })
+          );
+        } else {
+          return of(true);
+        }
+      })
+    );
   }
 }
