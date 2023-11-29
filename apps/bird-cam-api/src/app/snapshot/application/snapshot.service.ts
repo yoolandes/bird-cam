@@ -44,7 +44,7 @@ export class SnapshotService {
     return this.snapshotRepository.save(snapshot);
   }
 
-  createFromFile(buffer: Uint8Array, date: Date): Promise<Snapshot> {
+  createFromFile(base64: string, date: Date): Promise<Snapshot> {
     const snapshot = new Snapshot();
     const filePath =
       this.snapshotPath +
@@ -52,7 +52,7 @@ export class SnapshotService {
       '-' +
       Math.round(Math.random() * 1e9) +
       '.jpg';
-    fs.appendFileSync(filePath, buffer);
+    fs.appendFileSync(filePath, Buffer.from(base64, 'base64'));
 
     snapshot.filePath = filePath;
     snapshot.date = date;
@@ -72,7 +72,7 @@ export class SnapshotService {
     await this.snapshotRepository.delete(id);
   }
 
-  captureSnapshot(): Observable<ArrayBuffer> {
+  captureSnapshot(): Observable<string> {
     this.loggerService.info('Capturing snapshot...');
     return this.streamingService.startBirdCam().pipe(
       switchMap(() => {

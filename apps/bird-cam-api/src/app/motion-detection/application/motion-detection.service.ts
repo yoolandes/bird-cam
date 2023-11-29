@@ -43,8 +43,8 @@ export class MotionDetectionService {
             })
           );
         }),
-        tap((buffer: Uint8Array) =>
-          this.snapshotRepoService.createFromFile(buffer, new Date())
+        tap((base64: string) =>
+          this.snapshotRepoService.createFromFile(base64, new Date())
         )
       )
       .subscribe();

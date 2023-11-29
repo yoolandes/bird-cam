@@ -10,7 +10,7 @@ export class SnapshotCaptureService {
     rtspUrl: string,
     username: string,
     password: string
-  ): Promise<Uint8Array> {
+  ): Promise<string> {
     const ffmpeg = spawn('ffmpeg', [
       '-rtsp_transport',
       'tcp',
@@ -26,13 +26,9 @@ export class SnapshotCaptureService {
     ]);
 
     return new Promise((resolve, reject) => {
-      let result: Buffer;
-      ffmpeg.stdout.on('data', (data: any) => {
-        if (!result) {
-          result = data;
-        } else {
-          result.join(data);
-        }
+      let result = '';
+      ffmpeg.stdout.on('data', (data: Buffer) => {
+        result += data.toString('base64');
       });
 
       ffmpeg.stderr.on('data', (err: string) => {
