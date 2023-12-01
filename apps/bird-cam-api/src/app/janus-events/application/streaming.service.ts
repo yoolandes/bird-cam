@@ -1,6 +1,7 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import {
+  BehaviorSubject,
   Observable,
   catchError,
   delay,
@@ -21,6 +22,9 @@ import { JanodeService } from './janode-api.service';
 export class StreamingService {
   private stoppingCam = false;
 
+  private birdcamIsStreaming = new BehaviorSubject<boolean>(false);
+  birdcamIsStreaming$ = this.birdcamIsStreaming.asObservable();
+
   constructor(
     private readonly streamingApiService: StreamingApiService,
     private readonly loggerService: LoggerService,
@@ -29,7 +33,7 @@ export class StreamingService {
     private readonly janodeService: JanodeService
   ) {}
 
-  initMountpoint(): Observable<boolean> {
+  initMountpoint(): Observable<void> {
     this.loggerService.info('Init Mountpoint...');
     return this.janodeService.attachStreamingPlugin().pipe(
       exhaustMap((sessionInfo) =>
@@ -43,44 +47,37 @@ export class StreamingService {
         }
         return this.janusStreamingApiService.createMountpoint(sessionInfo);
       }),
-      switchMap(() => this.janodeService.detachStreamingPlugin()),
-      map(() => true)
+      exhaustMap(() => this.janodeService.detachStreamingPlugin()),
+      map(() => void 0)
     );
   }
 
-  startBirdCam(): Observable<boolean> {
+  startBirdCam(): Observable<void> {
     this.loggerService.info('Starting birdcam...');
     this.stoppingCam = false;
-    return this.streamingApiService
-      .start()
-      .pipe(tap(() => this.loggerService.info('Birdcam started!')));
+    return this.streamingApiService.start().pipe(
+      tap(() => this.loggerService.info('Birdcam started!')),
+      tap(() => this.birdcamIsStreaming.next(true))
+    );
   }
 
-  stopBirdcam(): Observable<any> {
+  stopBirdcam(): Observable<void> {
     this.loggerService.info('Stopping birdcam...');
-    return this.streamingApiService
-      .stop()
-      .pipe(tap(() => this.loggerService.info('Birdcam stopped!')));
+    return this.streamingApiService.stop().pipe(
+      tap(() => this.loggerService.info('Birdcam stopped!')),
+      tap(() => this.birdcamIsStreaming.next(false))
+    );
   }
 
-  stopBirdCamWhenNoSubscriber(): Observable<any> {
+  stopBirdCamWhenNoSubscriber(): Observable<void> {
     return this.janusAdminApiService.listSessions().pipe(
-      catchError((err) => {
-        this.loggerService.error(err.message);
-        return of([]);
-      }),
       tap(() => (this.stoppingCam = true)),
       delay(5000),
       switchMap((sessions: any) => {
         if (this.stoppingCam && sessions.length === 0) {
-          return this.stopBirdcam().pipe(
-            catchError((err) => {
-              this.loggerService.error(err.message);
-              return of();
-            })
-          );
+          return this.stopBirdcam();
         } else {
-          return of(true);
+          return of(void 0);
         }
       })
     );

@@ -47,7 +47,6 @@ export class JanodeService {
     if (!this.handle) {
       return of(void 0);
     }
-    console.log(this.handle);
     return from(this.handle.session.destroy()).pipe(
       first(),
       map(() => void 0),

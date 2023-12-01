@@ -1,43 +1,71 @@
 import { Injectable } from '@nestjs/common';
-import { delay, filter, switchMap, tap } from 'rxjs';
+import { catchError, delay, filter, of, switchMap, tap } from 'rxjs';
 import { JanusEventsService } from '../../janus-events/application/janus-events.service';
-import { RecorderService } from '../../recorder/application/recorder.service';
 import { BrightnessEventsService } from '../brightness-events.service';
 import { LedApiService } from '../infrastructure/led-api.service';
 import { LoggerService } from '@bird-cam/logger';
+import { StreamingService } from '../../janus-events/application/streaming.service';
+import { SnapshotCaptureService } from '../../snapshot/infrastructure/snapshot-capture.service';
+import { ConfigService } from '@nestjs/config';
+import { retryBackoff } from 'backoff-rxjs';
 
 @Injectable()
 export class BrightnessEventHandlerService {
+  birdcamRTSP: string;
+  birdcamRTSPUsername: string;
+  birdcamRTSPPassword: string;
   constructor(
-    private readonly janusEventsService: JanusEventsService,
-    private readonly recorderService: RecorderService,
-    private readonly brightnessEventsService: BrightnessEventsService,
+    private readonly streamingService: StreamingService,
     private readonly ledApiService: LedApiService,
-    private readonly loggerService: LoggerService
+    private readonly loggerService: LoggerService,
+    private readonly snapshotCaptureService: SnapshotCaptureService,
+    private readonly configService: ConfigService
   ) {
-    this.janusEventsService.publisherHasPublished
-      .pipe(
-        switchMap(() => this.recorderService.startRecording()),
-        tap(() => this.loggerService.log('set brightness recording true')),
-        delay(3000),
-        switchMap((uuid) => this.recorderService.stopRecording(uuid)),
-        tap(() => this.loggerService.log('set brightness recording false'))
-      )
-      .subscribe();
+    this.birdcamRTSP = this.configService.getOrThrow<string>('BIRDCAM_RTSP');
+    this.birdcamRTSPUsername = this.configService.getOrThrow<string>(
+      'BIRDCAM_RTSP_USERNAME'
+    );
+    this.birdcamRTSPPassword = this.configService.getOrThrow<string>(
+      'BIRDCAM_RTSP_PASSWORD'
+    );
 
-    this.brightnessEventsService.brightness$
+    this.streamingService.birdcamIsStreaming$
       .pipe(
-        tap((brightness) => this.loggerService.log(brightness + '')),
-        filter((brightness) => brightness < 0.3),
+        filter((birdcamIsStreaming) => birdcamIsStreaming),
+        switchMap(() =>
+          this.snapshotCaptureService.getBrightness(
+            this.birdcamRTSP,
+            this.birdcamRTSPUsername,
+            this.birdcamRTSPPassword
+          )
+        ),
+        filter((brightness) => brightness < 30),
         switchMap(() => this.ledApiService.switchOn()),
-        tap(() => this.loggerService.log('switched light on'))
+        retryBackoff({
+          initialInterval: 1000,
+          maxRetries: 5,
+        }),
+        tap(() => this.loggerService.info('Switched LED on')),
+        catchError(() => {
+          this.loggerService.error('Can not switch on LED!');
+          return of(void 0);
+        })
       )
       .subscribe();
 
-    this.janusEventsService.publisherHasLeft
+    this.streamingService.birdcamIsStreaming$
       .pipe(
+        filter((birdcamIsStreaming) => !birdcamIsStreaming),
         switchMap(() => this.ledApiService.switchOff()),
-        tap(() => this.loggerService.log('switched light off'))
+        retryBackoff({
+          initialInterval: 1000,
+          maxRetries: 5,
+        }),
+        tap(() => this.loggerService.info('Switched LED off')),
+        catchError(() => {
+          this.loggerService.error('Can not switch off LED!');
+          return of(void 0);
+        })
       )
       .subscribe();
   }

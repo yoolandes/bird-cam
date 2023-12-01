@@ -1,15 +1,33 @@
 import { Injectable } from '@nestjs/common';
-import { exhaustMap, switchMap } from 'rxjs';
+import {
+  catchError,
+  exhaustMap,
+  first,
+  merge,
+  of,
+  switchMap,
+  takeUntil,
+  takeWhile,
+  tap,
+} from 'rxjs';
 import { JanusEventsService } from '../application/janus-events.service';
 import { JanusAdminApiService } from '../infrastructure/janus-admin-api.service';
 import { StreamingService } from './streaming.service';
+import { LoggerService } from '@bird-cam/logger';
+import { retryBackoff } from 'backoff-rxjs';
 
 @Injectable()
 export class JanusEventHandlerService {
+  endInit = merge(
+    this.janusEventsService.userAttachedPluginStreaming,
+    this.janusEventsService.userDetachedPluginStreaming
+  ).pipe(first());
+
   constructor(
     private readonly janusEventsService: JanusEventsService,
     private readonly janusApiService: JanusAdminApiService,
-    private readonly streamingService: StreamingService
+    private readonly streamingService: StreamingService,
+    private readonly loggerService: LoggerService
   ) {
     this.init();
     this.startBirdcamWhenSubscriberHasJoined();
@@ -18,14 +36,38 @@ export class JanusEventHandlerService {
 
   private startBirdcamWhenSubscriberHasJoined() {
     this.janusEventsService.userAttachedPluginStreaming
-      .pipe(exhaustMap(() => this.streamingService.startBirdCam()))
+      .pipe(
+        exhaustMap(() => this.streamingService.startBirdCam()),
+        catchError((err: Error) => {
+          this.loggerService.error(
+            'Can not start Birdcam as subscriber joined. Trying again...'
+          );
+          console.log(err.message);
+          throw err;
+        }),
+        retryBackoff({
+          initialInterval: 1000,
+          maxInterval: 1000 * 60 * 10,
+        })
+      )
       .subscribe();
   }
 
   private stopBirdcamWhenLastScubriberHasLeft(): void {
     this.janusEventsService.userDetachedPluginStreaming
       .pipe(
-        exhaustMap(() => this.streamingService.stopBirdCamWhenNoSubscriber())
+        exhaustMap(() => this.streamingService.stopBirdCamWhenNoSubscriber()),
+        catchError((err: Error) => {
+          this.loggerService.error(
+            'Can not stop Birdcam as subscriber left. Tying again...'
+          );
+          console.log(err.message);
+          throw err;
+        }),
+        retryBackoff({
+          initialInterval: 1000,
+          maxInterval: 1000 * 60 * 10,
+        })
       )
       .subscribe();
   }
@@ -34,14 +76,29 @@ export class JanusEventHandlerService {
     this.streamingService
       .initMountpoint()
       .pipe(
-        exhaustMap(() => this.janusApiService.listSessions()),
-        switchMap((sessions) => {
-          if (sessions.length) {
-            return this.streamingService.startBirdCam();
-          }
-          return this.streamingService.stopBirdcam();
-        })
+        switchMap(() =>
+          this.janusApiService.listSessions().pipe(
+            exhaustMap((sessions) => {
+              if (sessions.length) {
+                return this.streamingService.startBirdCam();
+              }
+              return this.streamingService.stopBirdcam().pipe();
+            }),
+            catchError((err: Error) => {
+              this.loggerService.error('Can not initalize! Trying again...');
+              console.log(err.message);
+              throw err;
+            }),
+            retryBackoff({
+              initialInterval: 1000,
+              maxInterval: 1000 * 60 * 10,
+            })
+          )
+        ),
+        takeUntil(this.endInit)
       )
-      .subscribe();
+      .subscribe({
+        complete: () => this.loggerService.info('Initialization done!'),
+      });
   }
 }

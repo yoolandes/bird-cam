@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { map, Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 
 export interface SessionInfo {
   sessionId: string;
@@ -26,15 +26,15 @@ export class StreamingApiService {
       this.configService.getOrThrow<string>('BIRDCAM_HOST') + '/api/streaming';
   }
 
-  start(): Observable<boolean> {
+  start(): Observable<void> {
     return this.httpService
       .put(this.apiUrl, { on: true })
-      .pipe(map(({ body }: any) => body));
+      .pipe(map(() => void 0));
   }
 
-  stop(): Observable<boolean> {
+  stop(): Observable<void> {
     return this.httpService
       .put(this.apiUrl, { on: false })
-      .pipe(map(({ body }: any) => body));
+      .pipe(map(() => void 0));
   }
 }

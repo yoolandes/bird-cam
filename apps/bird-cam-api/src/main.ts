@@ -22,7 +22,7 @@ async function bootstrap() {
       return response;
     },
     (error) => {
-      Logger.error(error);
+      // Logger.error(error);
       throw error;
     }
   );

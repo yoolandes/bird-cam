@@ -39,6 +39,6 @@ const storage = multer.diskStorage({
   ],
   controllers: [SnapshotController],
   providers: [SnapshotService, SnapshotCaptureService],
-  exports: [SnapshotService],
+  exports: [SnapshotService, SnapshotCaptureService],
 })
 export class SnapshotModule {}

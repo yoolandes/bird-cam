@@ -1,6 +1,7 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import { ChildProcess, spawn } from 'child_process';
+import { log } from 'console';
 
 @Injectable()
 export class StreamingService {
@@ -41,9 +42,9 @@ export class StreamingService {
       if (!this.streamProcess) {
         return resolve();
       }
-      this.streamProcess.on('close', (code) => {
+      this.streamProcess.on('close', (code, signal) => {
         resolve();
-        this.loggerService.log(`child process exited with code ${code}`);
+        this.loggerService.log(`child process exited with code ${signal}`);
         this.streamProcess = undefined;
       });
       this.streamProcess.kill('SIGKILL');
