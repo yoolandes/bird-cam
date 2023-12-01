@@ -57,17 +57,17 @@ export class SnapshotCaptureService {
       '-vframes',
       '1',
       '-vf',
-      'blackframe=80',
+      'blackframe',
       '-loglevel',
       'info',
       'pipe:',
     ]);
 
     return new Promise((resolve, reject) => {
-      let result = 0;
+      let result = 100;
       ffmpeg.stderr.on('data', (err: Buffer) => {
         const exec = /pblack:(\d+)/.exec(err.toString());
-        if (exec && exec.length && !result) {
+        if (exec && exec.length) {
           result = 100 - parseInt(exec[1], 10);
         }
       });
