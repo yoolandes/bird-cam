@@ -3,12 +3,16 @@ ENV NODE_ENV=production
 
 WORKDIR /home
 
+RUN apk add  --no-cache ffmpeg
+RUN apk add  --no-cache python3
+RUN apk add --no-cache make
+RUN apk add --no-cache g++
 COPY package*.json ./
-RUN npm install
+RUN npm install --force
 ENV PATH /home/node_modules/.bin:$PATH
 
 WORKDIR /home/app
-RUN apk add  --no-cache ffmpeg
+
 
 CMD [ "node", "main.js" ]
 

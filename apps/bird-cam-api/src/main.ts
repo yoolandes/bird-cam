@@ -12,6 +12,7 @@ import { HttpService } from '@nestjs/axios';
 
 export * from 'mysql';
 export * from 'ansi-styles';
+export * from 'unix-dgram';
 
 async function bootstrap() {
   const httpService = new HttpService();
