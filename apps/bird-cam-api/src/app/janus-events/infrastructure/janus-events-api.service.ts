@@ -10,14 +10,6 @@ import {
 
 @Injectable()
 export class JanusEventsApiService {
-  readonly userHasJoined = new Observable<JanusMessage>();
-  readonly userHasLeft = new Observable<JanusMessage>();
-
-  readonly userHasPublished = new Observable<JanusMessage>();
-  readonly userHasUnpublished = new Observable<JanusMessage>();
-
-  readonly configured = new Observable<JanusMessage>();
-
   private readonly janusEvent = new ReplaySubject<JanusMessage>();
 
   readonly userStartedStream = new Observable<JanusMessage>();
@@ -29,6 +21,8 @@ export class JanusEventsApiService {
   readonly serviceUserAttachedPluginStreaming = new Observable<JanusMessage>();
 
   readonly serviceUserDetachedPluginStreaming = new Observable<JanusMessage>();
+
+  readonly bytesSent = new Observable<JanusMessage>();
 
   constructor(private readonly loggerService: LoggerService) {
     this.userStartedStream = this.janusEvent.pipe(
@@ -75,6 +69,11 @@ export class JanusEventsApiService {
           message.event.plugin === Plugin.Streaming &&
           message.event.opaque_id !== '123'
       ),
+      share()
+    );
+
+    this.bytesSent = this.janusEvent.pipe(
+      filter((message) => message.type === 32 && message.subtype === 3),
       share()
     );
   }

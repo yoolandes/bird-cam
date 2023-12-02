@@ -27,7 +27,6 @@ export class MotionDetectionService {
           this.loggerService.info('Motion detected ' + motionDetected)
         ),
         filter((motionDetected) => motionDetected),
-        filter((motionDetected) => motionDetected),
         exhaustMap(() => {
           return this.snapshotService.captureSnapshot().pipe(
             catchError((err) => {

@@ -17,8 +17,8 @@ export class StreamingService {
 
       this.streamProcess = spawn('v4l2rtspserver', [
         '-F10',
-        '-W 1920',
-        '-H 1080',
+        '-W 640',
+        '-H 480',
         '-P 8555',
         '/dev/video0',
       ]);

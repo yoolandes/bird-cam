@@ -1,5 +1,6 @@
 export interface JanusMessage {
   type: number;
+  subtype: number;
   event: {
     plugin: Plugin;
     name: Name;

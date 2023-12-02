@@ -37,37 +37,47 @@ export class JanusEventHandlerService {
   private startBirdcamWhenSubscriberHasJoined() {
     this.janusEventsService.userAttachedPluginStreaming
       .pipe(
-        exhaustMap(() => this.streamingService.startBirdCam()),
-        catchError((err: Error) => {
-          this.loggerService.error(
-            'Can not start Birdcam as subscriber joined. Trying again...'
-          );
-          console.log(err.message);
-          throw err;
-        }),
-        retryBackoff({
-          initialInterval: 1000,
-          maxInterval: 1000 * 60 * 10,
-        })
+        exhaustMap(() =>
+          this.streamingService.startBirdCam().pipe(
+            catchError((err: Error) => {
+              this.loggerService.error(
+                'Can not start Birdcam as subscriber joined. Trying again...'
+              );
+              console.log(err.message);
+              throw err;
+            }),
+            retryBackoff({
+              initialInterval: 1000,
+              maxInterval: 1000 * 30,
+            }),
+            takeUntil(this.janusEventsService.userDetachedPluginStreaming)
+          )
+        )
       )
-      .subscribe();
+      .subscribe({
+        complete: () => this.loggerService.error('Completed! This can not be!'),
+      });
   }
 
   private stopBirdcamWhenLastScubriberHasLeft(): void {
     this.janusEventsService.userDetachedPluginStreaming
       .pipe(
-        exhaustMap(() => this.streamingService.stopBirdCamWhenNoSubscriber()),
-        catchError((err: Error) => {
-          this.loggerService.error(
-            'Can not stop Birdcam as subscriber left. Tying again...'
-          );
-          console.log(err.message);
-          throw err;
-        }),
-        retryBackoff({
-          initialInterval: 1000,
-          maxInterval: 1000 * 60 * 10,
-        })
+        exhaustMap(() =>
+          this.streamingService.stopBirdCamWhenNoSubscriber().pipe(
+            catchError((err: Error) => {
+              this.loggerService.error(
+                'Can not stop Birdcam as subscriber left. Tying again...'
+              );
+              console.log(err.message);
+              throw err;
+            }),
+            retryBackoff({
+              initialInterval: 1000,
+              maxInterval: 1000 * 30,
+            }),
+            takeUntil(this.janusEventsService.userAttachedPluginStreaming)
+          )
+        )
       )
       .subscribe();
   }

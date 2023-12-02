@@ -1,11 +1,9 @@
-<video
-  class="block w-full"
-  id="video"
-  [srcObject]="liveStreamFacade.stream$| async"
-  (canplay)="canPlay()"
-  controls
-  muted
-  preload="auto"
-  poster="./assets/img/streampreview.jpg"></video>
-
-
+<video #video
+       class="block w-full"
+       id="video"
+       [srcObject]="liveStreamFacade.stream$| async"
+       (canplay)="canPlay()"
+       controls
+       muted
+       preload="auto"
+       poster="./assets/img/streampreview.jpg"></video>

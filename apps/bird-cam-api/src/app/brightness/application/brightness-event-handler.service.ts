@@ -43,7 +43,7 @@ export class BrightnessEventHandlerService {
         switchMap(() => this.ledApiService.switchOn()),
         retryBackoff({
           initialInterval: 1000,
-          maxRetries: 5,
+          maxRetries: 3,
         }),
         tap(() => this.loggerService.info('Switched LED on')),
         catchError(() => {
@@ -59,7 +59,7 @@ export class BrightnessEventHandlerService {
         switchMap(() => this.ledApiService.switchOff()),
         retryBackoff({
           initialInterval: 1000,
-          maxRetries: 5,
+          maxRetries: 3,
         }),
         tap(() => this.loggerService.info('Switched LED off')),
         catchError(() => {

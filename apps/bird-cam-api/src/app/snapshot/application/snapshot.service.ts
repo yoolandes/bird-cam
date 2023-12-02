@@ -74,7 +74,7 @@ export class SnapshotService {
 
   captureSnapshot(): Observable<string> {
     this.loggerService.info('Capturing snapshot...');
-    return this.streamingService.startBirdCam().pipe(
+    return this.streamingService.startBirdCamForSnapshot().pipe(
       switchMap(() => {
         return this.snapshotCaptureService.captureSnapshot(
           this.birdcamRTSP,
@@ -85,7 +85,7 @@ export class SnapshotService {
       tap(() => this.loggerService.info('Snapshot captured!')),
       finalize(() => {
         this.loggerService.info('Snapshot capturing done!');
-        this.streamingService.stopBirdCamWhenNoSubscriber().subscribe();
+        this.streamingService.stopBirdCamForSnapshot().subscribe();
       })
     );
   }
