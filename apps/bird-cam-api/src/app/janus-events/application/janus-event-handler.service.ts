@@ -82,7 +82,7 @@ export class JanusEventHandlerService {
               if (sessions.length) {
                 return this.streamingService.startBirdCam();
               }
-              return this.streamingService.stopBirdcam().pipe();
+              return this.streamingService.stopBirdCamWhenNoSubscriber().pipe();
             }),
             catchError((err: Error) => {
               this.loggerService.error('Can not initalize! Trying again...');

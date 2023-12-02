@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
-import { Observable, delay, map, switchMap, tap } from 'rxjs';
+import { Observable, delay, finalize, map, switchMap, tap } from 'rxjs';
 import { Repository } from 'typeorm';
 import { StreamingService } from '../../janus-events/application/streaming.service';
 import { CreateSnapshotDto } from '../infrastructure/model/create-snapshot.dto';
@@ -83,11 +83,10 @@ export class SnapshotService {
         );
       }),
       tap(() => this.loggerService.info('Snapshot captured!')),
-      switchMap((snapshot) =>
-        this.streamingService
-          .stopBirdCamWhenNoSubscriber()
-          .pipe(map(() => snapshot))
-      )
+      finalize(() => {
+        this.loggerService.info('Snapshot capturing done!');
+        this.streamingService.stopBirdCamWhenNoSubscriber().subscribe();
+      })
     );
   }
 }

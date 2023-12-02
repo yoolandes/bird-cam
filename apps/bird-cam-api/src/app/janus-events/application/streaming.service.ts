@@ -20,7 +20,7 @@ import { JanodeService } from './janode-api.service';
 
 @Injectable()
 export class StreamingService {
-  private stoppingCam = false;
+  private counter = 0;
 
   private birdcamIsStreaming = new BehaviorSubject<boolean>(false);
   birdcamIsStreaming$ = this.birdcamIsStreaming.asObservable();
@@ -54,14 +54,15 @@ export class StreamingService {
 
   startBirdCam(): Observable<void> {
     this.loggerService.info('Starting birdcam...');
-    this.stoppingCam = false;
     return this.streamingApiService.start().pipe(
       tap(() => this.loggerService.info('Birdcam started!')),
-      tap(() => this.birdcamIsStreaming.next(true))
+      tap(() => this.birdcamIsStreaming.next(true)),
+      tap(() => this.counter++),
+      tap(() => console.log(this.counter))
     );
   }
 
-  stopBirdcam(): Observable<void> {
+  private stopBirdcam(): Observable<void> {
     this.loggerService.info('Stopping birdcam...');
     return this.streamingApiService.stop().pipe(
       tap(() => this.loggerService.info('Birdcam stopped!')),
@@ -70,16 +71,21 @@ export class StreamingService {
   }
 
   stopBirdCamWhenNoSubscriber(): Observable<void> {
-    return this.janusAdminApiService.listSessions().pipe(
-      tap(() => (this.stoppingCam = true)),
-      delay(5000),
-      switchMap((sessions: any) => {
-        if (this.stoppingCam && sessions.length === 0) {
-          return this.stopBirdcam();
-        } else {
-          return of(void 0);
-        }
-      })
-    );
+    return this.janusAdminApiService
+      .listSessions()
+      .pipe(
+        delay(5000),
+        switchMap((sessions: any) => {
+          if (this.counter === 1 && sessions.length === 0) {
+            return this.stopBirdcam();
+          } else {
+            return of(void 0);
+          }
+        })
+      )
+      .pipe(
+        tap(() => (this.counter = Math.max(0, this.counter - 1))),
+        tap(() => console.log(this.counter))
+      );
   }
 }
