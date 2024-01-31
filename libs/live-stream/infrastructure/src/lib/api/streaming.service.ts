@@ -62,9 +62,12 @@ export class LiveStreamService {
       server: '/janus',
       iceServers: [
         {
-          urls: 'turn:a.relay.metered.ca:80',
+          urls: 'turn:standard.relay.metered.ca:80',
           username: '06857f7aa8f2eade65c72205',
           credential: 'x6azWvpCiK4/xJJK',
+        },
+        {
+          urls: 'stun:stun.relay.metered.ca:80',
         },
       ],
       success: () => {
@@ -80,17 +83,17 @@ export class LiveStreamService {
             this.stream.error(error);
           },
           iceState(state: any) {
-            Janus.log('ICE state changed to ' + state);
+            console.log('ICE state changed to ' + state);
           },
           webrtcState(on: any) {
-            Janus.log(
+            console.log(
               'Janus says our WebRTC PeerConnection is ' +
                 (on ? 'up' : 'down') +
                 ' now'
             );
           },
           onmessage: (msg: any, jsep: any) => {
-            Janus.debug(' ::: Got a message :::', msg);
+            console.log(' ::: Got a message :::', msg);
             var result = msg['result'];
             if (result) {
               if (result['status']) {
@@ -105,7 +108,7 @@ export class LiveStreamService {
               return;
             }
             if (jsep) {
-              Janus.debug('Handling SDP as well...', jsep);
+              console.log('Handling SDP as well...', jsep);
               var stereo = jsep.sdp.indexOf('stereo=1') !== -1;
               // Offer from the plugin, let's answer
               this.streaming.createAnswer({
@@ -122,12 +125,12 @@ export class LiveStreamService {
                   }
                 },
                 success: (jsep: any) => {
-                  Janus.debug('Got SDP!', jsep);
+                  console.log('Got SDP!', jsep);
                   var body = { request: 'start' };
                   this.streaming.send({ message: body, jsep: jsep });
                 },
                 error: (error: any) => {
-                  Janus.error('WebRTC error:', error);
+                  console.log('WebRTC error:', error);
                 },
               });
             }
@@ -138,12 +141,12 @@ export class LiveStreamService {
             console.log(this.streaming.getBitrate());
           },
           oncleanup: function () {
-            Janus.log(' ::: Got a cleanup notification :::');
+            console.log(' ::: Got a cleanup notification :::');
           },
         });
       },
       error: (error: any) => {
-        Janus.error(error);
+        console.log(error);
       },
       destroyed: function () {
         window.location.reload();
