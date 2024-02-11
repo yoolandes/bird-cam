@@ -48,6 +48,9 @@ export class LiveStreamService {
           username: '06857f7aa8f2eade65c72205',
           credential: 'x6azWvpCiK4/xJJK',
         },
+        {
+          urls: 'stun:stun.relay.metered.ca:80',
+        },
       ],
       success: () => {
         this.janus.attach({
