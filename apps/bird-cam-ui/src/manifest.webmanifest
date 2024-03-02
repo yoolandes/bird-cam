@@ -1,7 +1,7 @@
 {
-  "name": "bird-cam-ui",
-  "short_name": "bird-cam-ui",
-  "theme_color": "#1976d2",
+  "name": "Birdcam",
+  "short_name": "Birdcam",
+  "theme_color": "#3880ff",
   "background_color": "#fafafa",
   "display": "standalone",
   "scope": "./",
