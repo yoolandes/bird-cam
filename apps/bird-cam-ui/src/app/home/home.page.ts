@@ -4,7 +4,4 @@ import { Component } from '@angular/core';
   selector: 'bird-cam-home',
   templateUrl: 'home.page.html',
 })
-export class HomePage {
-
-
-}
+export class HomePage {}

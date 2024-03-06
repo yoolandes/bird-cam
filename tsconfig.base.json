@@ -15,6 +15,17 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@bird-cam/active-viewers/application": [
+        "libs/active-viewers/application/src/index.ts"
+      ],
+      "@bird-cam/active-viewers/infrastructure": [
+        "libs/active-viewers/infrastructure/src/index.ts"
+      ],
+      "@bird-cam/active-viewers/model": [
+        "libs/active-viewers/model/src/index.ts"
+      ],
+      "@bird-cam/active-viewers/ui": ["libs/active-viewers/ui/src/index.ts"],
+      "@bird-cam/activer-viewers": ["libs/activer-viewers/src/index.ts"],
       "@bird-cam/comments/infrastructure": [
         "libs/comments/infrastructure/src/index.ts"
       ],

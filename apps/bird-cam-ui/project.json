@@ -27,6 +27,11 @@
             "glob": "**/*.json",
             "input": "./libs/comments/ui/src/assets/i18n/",
             "output": "/assets/i18n/comments"
+          },
+          {
+            "glob": "**/*.json",
+            "input": "./libs/active-viewers/ui/src/assets/i18n/",
+            "output": "/assets/i18n/active-viewers"
           }
         ],
         "styles": [

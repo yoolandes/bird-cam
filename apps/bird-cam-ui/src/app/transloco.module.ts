@@ -2,13 +2,12 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, isDevMode, NgModule } from '@angular/core';
 import {
   TRANSLOCO_LOADER,
-  translocoConfig,
-  TRANSLOCO_CONFIG,
   TranslocoModule,
   TranslocoLoader,
   Translation,
-} from '@ngneat/transloco'
-import { TranslocoMessageFormatModule } from '@ngneat/transloco-messageformat';;
+  provideTransloco,
+} from '@ngneat/transloco';
+import { provideTranslocoMessageformat } from '@ngneat/transloco-messageformat';
 
 @Injectable({ providedIn: 'root' })
 export class TranslocoHttpLoader implements TranslocoLoader {
@@ -21,16 +20,18 @@ export class TranslocoHttpLoader implements TranslocoLoader {
 
 @NgModule({
   exports: [TranslocoModule],
-  imports: [TranslocoMessageFormatModule.forRoot()],
   providers: [
-    {
-      provide: TRANSLOCO_CONFIG,
-      useValue: translocoConfig({
+    provideTranslocoMessageformat(),
+    provideTransloco({
+      config: {
         availableLangs: ['de_DE'],
         defaultLang: 'de_DE',
+        // Remove this option if your application doesn't support changing language in runtime.
+        reRenderOnLangChange: true,
         prodMode: !isDevMode(),
-      }),
-    },
+      },
+      loader: TranslocoHttpLoader,
+    }),
     { provide: TRANSLOCO_LOADER, useClass: TranslocoHttpLoader },
   ],
 })
