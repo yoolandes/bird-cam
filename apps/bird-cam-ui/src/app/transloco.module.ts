@@ -21,18 +21,16 @@ export class TranslocoHttpLoader implements TranslocoLoader {
 @NgModule({
   exports: [TranslocoModule],
   providers: [
-    provideTranslocoMessageformat(),
     provideTransloco({
       config: {
         availableLangs: ['de_DE'],
         defaultLang: 'de_DE',
-        // Remove this option if your application doesn't support changing language in runtime.
-        reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       },
       loader: TranslocoHttpLoader,
     }),
     { provide: TRANSLOCO_LOADER, useClass: TranslocoHttpLoader },
+    provideTranslocoMessageformat(),
   ],
 })
 export class TranslocoRootModule {}
