@@ -1,6 +1,15 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>{{'app.title' | transloco }}</ion-title>
+    <ion-title>
+      <div class="flex flex-row items-center">
+        <ion-img class="h-5 mr-1"
+                 alt="Birdcam Logo"
+                 src="assets/icon/favicon.png" />
+        <span>{{'app.title' | transloco
+          }}</span>
+      </div>
+    </ion-title>
+
     <bird-cam-live-stream-progress-bar class="absolute bottom-0 left-0 right-0"></bird-cam-live-stream-progress-bar>
   </ion-toolbar>
 
