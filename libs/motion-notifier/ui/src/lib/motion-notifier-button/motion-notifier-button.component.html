@@ -1,0 +1,7 @@
+<ng-container *ngIf="pushSubscriberService.showSubscription$ | async">
+    <ion-button *ngIf="pushSubscriberService.hasSubscribed$| async; else unscubribe"
+                (click)="unsubscribe()">Unsubscribe</ion-button>
+    <ng-template #unscubribe>
+        <ion-button (click)="subscribe()">Subscribe</ion-button>
+    </ng-template>
+</ng-container>
