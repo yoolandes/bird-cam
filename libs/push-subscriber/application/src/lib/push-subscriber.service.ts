@@ -1,23 +1,28 @@
 import { Injectable } from '@angular/core';
 import {
   PushSubscriberActions,
-  selectHasSubscribed,
   selectShowSubscription,
 } from '@bird-cam/push-subscriber/infrastructure';
 import { Store } from '@ngrx/store';
+import { SwPush } from '@angular/service-worker';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PushSubscriberService {
   showSubscription$ = this.store.select(selectShowSubscription);
-  hasSubscribed$ = this.store.select(selectHasSubscribed);
 
-  constructor(private readonly store: Store) {}
+  constructor(private readonly store: Store, private readonly swPush: SwPush) {
+    this.swPush.notificationClicks.subscribe(console.log);
+    this.swPush.subscription.subscribe(console.log);
+    this.swPush.messages.subscribe(console.log);
+  }
 
   requestSubscription(): void {
     this.store.dispatch(PushSubscriberActions.subscribe());
   }
 
-  unsubscribe() {}
+  unsubscribe() {
+    this.store.dispatch(PushSubscriberActions.unSubscribe());
+  }
 }

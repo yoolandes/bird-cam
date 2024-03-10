@@ -9,7 +9,7 @@ export class MotionDetectionController {
   ) {}
 
   @Post()
-  create(@Body() { motionDetected }: CreateMotionDetectionDto) {
-    return this.motionDetectionService.setMotionDetected(motionDetected);
+  create(@Body() res: CreateMotionDetectionDto) {
+    return this.motionDetectionService.setMotionDetected(res.motionDetected, res.snapshot);
   }
 }

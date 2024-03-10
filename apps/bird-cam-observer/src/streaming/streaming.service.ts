@@ -1,7 +1,6 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import { ChildProcess, spawn } from 'child_process';
-import { log } from 'console';
 
 @Injectable()
 export class StreamingService {
@@ -49,5 +48,9 @@ export class StreamingService {
       });
       this.streamProcess.kill('SIGKILL');
     });
+  }
+
+  isStreaming(): boolean {
+    return !!this.streamProcess
   }
 }

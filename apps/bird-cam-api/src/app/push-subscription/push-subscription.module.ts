@@ -9,5 +9,6 @@ import { VapidKeyController } from './utils/vapid-key.controller';
   imports: [TypeOrmModule.forFeature([PushSubscriptionHolderEntity])],
   controllers: [PushSubscriptionController, VapidKeyController],
   providers: [PushSubscriptionService],
+  exports: [PushSubscriptionService]
 })
 export class PushSubscriptionModule {}

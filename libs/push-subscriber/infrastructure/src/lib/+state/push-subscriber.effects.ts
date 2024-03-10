@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
+import { concatMap, EMPTY, from, of, tap } from 'rxjs';
 import { SwPush } from '@angular/service-worker';
 import { catchError, exhaustMap, map } from 'rxjs/operators';
 import { PushSubscriberDataService } from '../push-subscriber-data.service';
@@ -37,6 +37,21 @@ export class PushSubscriberEffects {
           catchError((error) =>
             of(PushSubscriberActions.subscribeFailure({ error }))
           )
+        )
+      )
+    );
+  });
+
+  unsubscribe$ = createEffect(() => {
+    return this.actions$.pipe(
+      ofType(PushSubscriberActions.unSubscribe),
+      exhaustMap(() =>
+        from(this.swPush.unsubscribe()).pipe(
+          map(() => PushSubscriberActions.unSubscribeSuccess()),
+          catchError((error) => {
+            console.log(error);
+            return of(PushSubscriberActions.unSubscribeFailure({ error }));
+          })
         )
       )
     );

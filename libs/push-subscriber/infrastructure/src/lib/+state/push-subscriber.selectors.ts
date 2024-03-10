@@ -6,11 +6,7 @@ export const selectPushSubscriberState =
     fromPushSubscriber.pushSubscriberFeatureKey
   );
 
-export const selectHasSubscribed = createSelector(
-  () => Notification.permission === 'granted'
-);
-
 export const selectShowSubscription = createSelector(
   selectPushSubscriberState,
-  ({ isEnabled }) => isEnabled && Notification.permission !== 'denied'
+  ({ isEnabled }) => isEnabled
 );

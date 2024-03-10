@@ -8,5 +8,6 @@ import { LoggerModule } from '@bird-cam/logger';
   imports: [LoggerModule],
   controllers: [StreamingController],
   providers: [StreamingService],
+  exports:[StreamingService]
 })
 export class StreamingModule {}

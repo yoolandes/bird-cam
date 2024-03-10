@@ -6,6 +6,9 @@ export const PushSubscriberActions = createActionGroup({
     Subscribe: emptyProps(),
     'Subscribe Success': emptyProps(),
     'Subscribe Failure': props<{ error: unknown }>(),
+    UnSubscribe: emptyProps(),
+    'UnSubscribe Success': emptyProps(),
+    'UnSubscribe Failure': props<{ error: unknown }>(),
     'Is Enabled': props<{ isEnabled: boolean }>(),
   },
 });

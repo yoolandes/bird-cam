@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 @Controller('vapid')
 export class VapidKeyController {
-  private vapidPublicKey: string;
+  private readonly vapidPublicKey: string;
   constructor(private readonly configService: ConfigService) {
     this.vapidPublicKey =
       this.configService.getOrThrow<string>('VAPID_PUBLIC_KEY');

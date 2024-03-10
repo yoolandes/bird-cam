@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from '@bird-cam/logger';
-import { SnapshotModule } from '../snapshot/snapshot.module';
 
 import { MotionDetectorService } from './motion-detector.service';
+import {StreamingModule} from "../streaming/streaming.module";
 
 @Module({
-  imports: [SnapshotModule, LoggerModule],
+  imports: [LoggerModule, StreamingModule],
   providers: [MotionDetectorService],
   exports: [MotionDetectorService],
 })

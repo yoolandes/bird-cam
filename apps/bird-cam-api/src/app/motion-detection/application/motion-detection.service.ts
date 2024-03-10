@@ -1,6 +1,5 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { intervalBackoff } from 'backoff-rxjs';
 import {
   catchError,
   exhaustMap,
@@ -16,19 +15,19 @@ import { MotionDetectionEventsService } from '../motion-detection-events.service
 @Injectable()
 export class MotionDetectionService {
   constructor(
-    private readonly motionDetectionService: MotionDetectionEventsService,
+    private readonly motionDetectionEventsService: MotionDetectionEventsService,
     private readonly snapshotService: SnapshotService,
     private readonly loggerService: LoggerService,
     private readonly snapshotRepoService: SnapshotService
   ) {
-    this.motionDetectionService.motionDetected$
+    this.motionDetectionEventsService.motionDetected$
       .pipe(
-        tap((motionDetected) =>
+        tap(({motionDetected}) =>
           this.loggerService.info('Motion detected ' + motionDetected)
         ),
-        filter((motionDetected) => motionDetected),
-        exhaustMap(() => {
-          return this.snapshotService.captureSnapshot().pipe(
+        filter(({motionDetected}) => motionDetected),
+        exhaustMap(({snapshot}) => {
+          return (snapshot ? of(snapshot) : this.snapshotService.captureSnapshot()).pipe(
             catchError((err) => {
               this.loggerService.info('Cant start recording');
               this.loggerService.error(err.message);
@@ -37,8 +36,8 @@ export class MotionDetectionService {
             tap((base64: string) =>
               this.snapshotRepoService.createFromFile(base64, new Date())
             ),
-            withLatestFrom(this.motionDetectionService.motionDetected$),
-            takeWhile(([, motionDetected]) => motionDetected)
+            withLatestFrom(this.motionDetectionEventsService.motionDetected$),
+            takeWhile(([, {motionDetected}]) => motionDetected)
           );
         })
       )

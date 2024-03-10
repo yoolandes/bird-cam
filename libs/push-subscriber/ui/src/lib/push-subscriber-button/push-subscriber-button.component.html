@@ -1,7 +1,20 @@
 <ng-container *ngIf="pushSubscriberService.showSubscription$ | async">
-    <ion-button *ngIf="pushSubscriberService.hasSubscribed$| async; else unscubribe"
-                (click)="unsubscribe()">Unsubscribe</ion-button>
-    <ng-template #unscubribe>
-        <ion-button (click)="subscribe()">Subscribe</ion-button>
-    </ng-template>
+  <ion-button
+    fill="clear"
+    *ngIf="
+      Notification.permission === 'granted' && (swPush.subscription | async);
+      else subscribeButton
+    "
+    (click)="unsubscribe()"
+  >
+    <ion-icon name="notifications-off-outline"></ion-icon>
+  </ion-button>
+  <ng-template #subscribeButton>
+    <ion-button
+      [disabled]="Notification.permission === 'denied'"
+      (click)="subscribe()"
+    >
+      <ion-icon name="notifications-outline"></ion-icon>
+    </ion-button>
+  </ng-template>
 </ng-container>
