@@ -1,4 +1,4 @@
-import { CreatePushSubscriptionHolderDto } from '@bird-cam/motion-notifier/model';
+import { CreatePushSubscriptionHolderDto } from '@bird-cam/push-subscriber/model';
 import { Body, Controller, Post } from '@nestjs/common';
 import { PushSubscriptionService } from './push-subscription.service';
 

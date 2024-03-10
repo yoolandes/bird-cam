@@ -7,7 +7,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { CommentsUiModule } from '@bird-cam/comments/ui';
 import { LiveStreamUiModule } from 'libs/live-stream/ui/src';
 import { ActiveViewersUiModule } from '@bird-cam/active-viewers/ui';
-import { MotionNotifierUiModule } from '@bird-cam/motion-notifier/ui';
+import { PushSubscriberUiModule } from '@bird-cam/push-subscriber/ui';
 
 @NgModule({
   imports: [
@@ -17,7 +17,7 @@ import { MotionNotifierUiModule } from '@bird-cam/motion-notifier/ui';
     LiveStreamUiModule,
     TranslocoModule,
     ActiveViewersUiModule,
-    MotionNotifierUiModule,
+    PushSubscriberUiModule,
   ],
   declarations: [HomePage],
 })

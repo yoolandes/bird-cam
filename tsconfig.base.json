@@ -37,17 +37,17 @@
       "@bird-cam/live-stream/model": ["libs/live-stream/model/src/index.ts"],
       "@bird-cam/live-stream/ui": ["libs/live-stream/ui/src/index.ts"],
       "@bird-cam/logger": ["libs/logger/src/index.ts"],
-      "@bird-cam/motion-notifier": ["libs/motion-notifier/src/index.ts"],
-      "@bird-cam/motion-notifier/application": [
-        "libs/motion-notifier/application/src/index.ts"
+      "@bird-cam/push-subscriber": ["libs/push-subscriber/src/index.ts"],
+      "@bird-cam/push-subscriber/application": [
+        "libs/push-subscriber/application/src/index.ts"
       ],
-      "@bird-cam/motion-notifier/infrastructure": [
-        "libs/motion-notifier/infrastructure/src/index.ts"
+      "@bird-cam/push-subscriber/infrastructure": [
+        "libs/push-subscriber/infrastructure/src/index.ts"
       ],
-      "@bird-cam/motion-notifier/model": [
-        "libs/motion-notifier/model/src/index.ts"
+      "@bird-cam/push-subscriber/model": [
+        "libs/push-subscriber/model/src/index.ts"
       ],
-      "@bird-cam/motion-notifier/ui": ["libs/motion-notifier/ui/src/index.ts"],
+      "@bird-cam/push-subscriber/ui": ["libs/push-subscriber/ui/src/index.ts"],
       "@bird-cam/rxjs-queue": ["libs/rxjs-queue/src/index.ts"]
     }
   },

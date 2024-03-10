@@ -1,4 +1,4 @@
-import { PushSubscriptionHolder } from '@bird-cam/motion-notifier/model';
+import { PushSubscriptionHolder } from '@bird-cam/push-subscriber/model';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({
