@@ -11,12 +11,7 @@ export class LiveStreamComponent implements AfterViewInit {
   @ViewChild('video') video!: ElementRef;
   constructor(readonly liveStreamFacade: LiveStreamFacade) {}
   ngAfterViewInit(): void {
-    this.liveStreamFacade.initLiveStream();
-    this.liveStreamFacade.stream$
-      .pipe(filter(({ active }) => !active))
-      .subscribe(() => {
-        this.video.nativeElement.load();
-      });
+    this.liveStreamFacade.startStream();
   }
 
   canPlay(): void {

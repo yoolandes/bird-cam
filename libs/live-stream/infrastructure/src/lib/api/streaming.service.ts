@@ -18,7 +18,13 @@ export class LiveStreamService {
 
   streaming: any;
 
-  getStream(): void {
+  startStream(): void {
+    if (this.streaming) {
+      if (this.streaming.getBitrate() === 'Invalid PeerConnection') {
+        this.startStreamInternal();
+      }
+      return;
+    }
     if (!Janus.isWebrtcSupported()) {
       this.stream.error(new Error('No Webrtc'));
     } else {
@@ -38,7 +44,7 @@ export class LiveStreamService {
     this.streaming.send({
       message: body,
       success: (result: any) => {
-        this.startStream();
+        this.startStreamInternal();
       },
     });
   }
@@ -49,7 +55,7 @@ export class LiveStreamService {
     this.streaming.hangup();
   }
 
-  startStream() {
+  startStreamInternal() {
     var body = {
       request: 'watch',
       id: 99,
@@ -85,7 +91,7 @@ export class LiveStreamService {
           iceState(state: any) {
             console.log('ICE state changed to ' + state);
           },
-          webrtcState(on: any) {
+          webrtcState: (on: any) => {
             console.log(
               'Janus says our WebRTC PeerConnection is ' +
                 (on ? 'up' : 'down') +
@@ -94,19 +100,23 @@ export class LiveStreamService {
           },
           onmessage: (msg: any, jsep: any) => {
             console.log(' ::: Got a message :::', msg);
-            var result = msg['result'];
-            if (result) {
-              if (result['status']) {
-                var status = result['status'];
-                if (status === 'stopped') {
-                  this.stopStream();
-                }
-              } else if (msg['streaming'] === 'event') {
-              }
-            } else if (msg['error']) {
+            const status = msg?.result?.status;
+
+            if (status === 'stopped') {
+              this.stopStream();
+            } else if (status === 'preparing') {
+              this.progress.next(StreamProgress.Preparing);
+            } else if (status === 'starting') {
+              this.progress.next(StreamProgress.Starting);
+            } else if (status === 'started') {
+              this.progress.next(StreamProgress.Started);
+            }
+
+            if (msg.error) {
               this.stopStream();
               return;
             }
+
             if (jsep) {
               console.log('Handling SDP as well...', jsep);
               var stereo = jsep.sdp.indexOf('stereo=1') !== -1;
@@ -136,11 +146,11 @@ export class LiveStreamService {
             }
           },
           onremotestream: (stream: any) => {
-            console.log(stream);
             this.stream.next(stream);
             console.log(this.streaming.getBitrate());
           },
-          oncleanup: function () {
+          oncleanup: () => {
+            this.progress.next(StreamProgress.Idle);
             console.log(' ::: Got a cleanup notification :::');
           },
         });

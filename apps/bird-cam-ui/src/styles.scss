@@ -1,6 +1,6 @@
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
 
 /*
 * App Global CSS
@@ -28,3 +28,14 @@
 @import '~@ionic/angular/css/text-alignment.css';
 @import '~@ionic/angular/css/text-transformation.css';
 @import '~@ionic/angular/css/flex-utils.css';
+
+@media (min-width: 960px) {
+  ion-content {
+    width: 960px;
+  }
+
+  ion-router-outlet > * {
+    display: flex;
+    align-items: center;
+  }
+}

@@ -1,9 +1,8 @@
 export enum StreamProgress {
-    Idle,
-    PluginAttached,
-    JoinedRoom,
-    GotFeed,
-    AttachedToFeed,
-    ConnectionIsUp,
-    Streaming
-  }
+  Idle,
+  PluginAttached,
+  Preparing,
+  Starting,
+  Started,
+  Streaming,
+}

@@ -9,8 +9,12 @@ export class LiveStreamFacade {
 
   constructor(private readonly liveStreamService: LiveStreamService) {}
 
-  initLiveStream() {
-    this.liveStreamService.getStream();
+  startStream() {
+    this.liveStreamService.startStream();
+  }
+
+  stopStream() {
+    this.liveStreamService.stopStream();
   }
 
   setProgress(streamProgress: StreamProgress): void {
