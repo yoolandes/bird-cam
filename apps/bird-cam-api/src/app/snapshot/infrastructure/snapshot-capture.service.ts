@@ -58,44 +58,4 @@ export class SnapshotCaptureService {
       });
     }).pipe(this.rxJsQueue()) as Observable<string>;
   }
-
-  getBrightness(
-    rtspUrl: string,
-    username: string,
-    password: string
-  ): Observable<number> {
-    this.loggerService.info('Get Brightness...');
-    const ffmpeg = spawn('ffmpeg', [
-      '-rtsp_transport',
-      'tcp',
-      '-i',
-      `rtsp://${username}:${password}@${rtspUrl}`,
-      '-f',
-      'image2',
-      '-vframes',
-      '1',
-      '-vf',
-      'blackframe',
-      '-loglevel',
-      'info',
-      'pipe:',
-    ]);
-
-    return from(
-      new Promise<number>((resolve, reject) => {
-        let result = 100;
-        ffmpeg.stderr.on('data', (err: Buffer) => {
-          const exec = /pblack:(\d+)/.exec(err.toString());
-          if (exec && exec.length) {
-            result = 100 - parseInt(exec[1], 10);
-          }
-        });
-
-        ffmpeg.on('close', (code: number) => {
-          this.loggerService.info('Brightness is: ' + result);
-          return code === 0 ? resolve(result) : reject(code);
-        });
-      })
-    ).pipe(this.rxJsQueue());
-  }
 }
