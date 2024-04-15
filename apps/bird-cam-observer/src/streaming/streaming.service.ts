@@ -19,7 +19,8 @@ export class StreamingService {
         '-W 640',
         '-H 480',
         '-P 8555',
-        '/dev/video0',
+        '-C 1',
+        '/dev/video0,hw:1,0',
       ]);
 
       this.streamProcess.stdout.on('data', (data: string) => {
@@ -51,6 +52,6 @@ export class StreamingService {
   }
 
   isStreaming(): boolean {
-    return !!this.streamProcess
+    return !!this.streamProcess;
   }
 }

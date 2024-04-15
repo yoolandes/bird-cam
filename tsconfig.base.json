@@ -48,7 +48,13 @@
         "libs/push-subscriber/model/src/index.ts"
       ],
       "@bird-cam/push-subscriber/ui": ["libs/push-subscriber/ui/src/index.ts"],
-      "@bird-cam/rxjs-queue": ["libs/rxjs-queue/src/index.ts"]
+      "@bird-cam/rxjs-queue": ["libs/rxjs-queue/src/index.ts"],
+      "@bird-cam/snapshot/application": [
+        "libs/snapshot/application/src/index.ts"
+      ],
+      "@bird-cam/snapshot/infrastructure": [
+        "libs/snapshot/infrastructure/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

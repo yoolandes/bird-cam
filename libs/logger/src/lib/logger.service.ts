@@ -1,5 +1,6 @@
 import { Injectable, LoggerService as Logger } from '@nestjs/common';
 import { createLogger, transports, format } from 'winston';
+import 'winston-daily-rotate-file';
 
 @Injectable()
 export class LoggerService implements Logger {
@@ -11,8 +12,11 @@ export class LoggerService implements Logger {
 
   private readonly logger = createLogger({
     transports: [
-      new transports.File({
-        filename: 'birdcam.log',
+      new transports.DailyRotateFile({
+        filename: 'birdcam-%DATE%.log',
+        datePattern: 'YYYY-MM-DD',
+        maxSize: '20m',
+        maxFiles: '7d',
         format: format.combine(format.timestamp(), this.customFormat),
       }),
       new transports.Console(),
