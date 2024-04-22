@@ -35,8 +35,19 @@ export class JanusStreamingApiService {
         id: 99,
         url: 'rtsp://' + this.birdcamRTSP,
         video: true,
+        audio: false,
         secret: this.janusStreamingAdminKey,
+        audioport: 0,
+        audiopt: 11,
+        audiortpmap: 'L16/44100',
+        audioskew: false,
         media: [
+          {
+            audioport: 0,
+            audiopt: 11,
+            audiortpmap: 'L16/44100',
+            audioskew: false,
+          },
           {
             type: 'video',
             videortpmap: 'H264/90000',

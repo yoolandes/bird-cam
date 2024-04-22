@@ -27,6 +27,10 @@ export class PushMotionNotificationService {
             );
         })
       )
-      .subscribe();
+      .subscribe({
+        complete: () =>
+          this.loggerService.error('Completed! This can not be! Notification'),
+        error: (err) => this.loggerService.error(err),
+      });
   }
 }

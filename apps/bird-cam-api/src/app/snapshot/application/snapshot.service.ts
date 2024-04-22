@@ -85,7 +85,11 @@ export class SnapshotService {
       tap(() => this.loggerService.info('Snapshot captured!')),
       finalize(() => {
         this.loggerService.info('Snapshot capturing done!');
-        this.streamingService.stopBirdCamForSnapshot().subscribe();
+        this.streamingService.stopBirdCamForSnapshot().subscribe({
+          complete: () =>
+            this.loggerService.error('Completed! This can not be! Snapshot'),
+          error: (err) => this.loggerService.error(err),
+        });
       })
     );
   }

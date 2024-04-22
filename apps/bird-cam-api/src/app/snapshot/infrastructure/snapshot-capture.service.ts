@@ -15,7 +15,7 @@ export class SnapshotCaptureService {
     password: string
   ): Observable<string> {
     return new Observable((source) => {
-      this.loggerService.info('Capturing Snapshot...');
+      this.loggerService.info('Capturing Snapshot with FFMPEG...');
       const ffmpeg = spawn('ffmpeg', [
         '-rtsp_transport',
         'tcp',

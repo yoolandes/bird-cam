@@ -67,7 +67,11 @@ export class BrightnessEventHandlerService {
           return of(void 0);
         })
       )
-      .subscribe();
+      .subscribe({
+        complete: () =>
+          this.loggerService.error('Completed! This can not be! Brightness on'),
+        error: (err) => this.loggerService.error(err),
+      });
 
     this.streamingService.birdcamIsStreaming$
       .pipe(
@@ -83,6 +87,12 @@ export class BrightnessEventHandlerService {
           return of(void 0);
         })
       )
-      .subscribe();
+      .subscribe({
+        complete: () =>
+          this.loggerService.error(
+            'Completed! This can not be! Brightness off'
+          ),
+        error: (err) => this.loggerService.error(err),
+      });
   }
 }

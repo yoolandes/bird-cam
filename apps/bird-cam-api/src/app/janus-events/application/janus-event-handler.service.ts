@@ -55,7 +55,11 @@ export class JanusEventHandlerService {
         )
       )
       .subscribe({
-        complete: () => this.loggerService.error('Completed! This can not be!'),
+        complete: () =>
+          this.loggerService.error(
+            'Completed! This can not be! startBirdcamWhenSubscriberHasJoined'
+          ),
+        error: (err) => this.loggerService.error(err),
       });
   }
 
@@ -79,7 +83,13 @@ export class JanusEventHandlerService {
           )
         )
       )
-      .subscribe();
+      .subscribe({
+        complete: () =>
+          this.loggerService.error(
+            'Completed! This can not be! stopBirdcamWhenLastScubriberHasLeft'
+          ),
+        error: (err) => this.loggerService.error(err),
+      });
   }
 
   private init(): void {
