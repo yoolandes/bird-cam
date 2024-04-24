@@ -37,6 +37,13 @@
       "@bird-cam/live-stream/model": ["libs/live-stream/model/src/index.ts"],
       "@bird-cam/live-stream/ui": ["libs/live-stream/ui/src/index.ts"],
       "@bird-cam/logger": ["libs/logger/src/index.ts"],
+      "@bird-cam/motion-activity/infrastructure": [
+        "libs/motion-activity/infrastructure/src/index.ts"
+      ],
+      "@bird-cam/motion-activity/model": [
+        "libs/motion-activity/model/src/index.ts"
+      ],
+      "@bird-cam/motion-activity/ui": ["libs/motion-activity/ui/src/index.ts"],
       "@bird-cam/push-subscriber": ["libs/push-subscriber/src/index.ts"],
       "@bird-cam/push-subscriber/application": [
         "libs/push-subscriber/application/src/index.ts"

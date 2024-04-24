@@ -6,7 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
-  Res
+  Res,
 } from '@nestjs/common';
 import { CommentEntity } from './comment.entity';
 
@@ -18,15 +18,13 @@ export class CommentController {
   constructor(private readonly commentService: CommentService) {}
 
   @Post()
-  create(
-    @Body() createCommenttDto: CreateCommentDto,
-  ) {
+  create(@Body() createCommenttDto: CreateCommentDto) {
     return this.commentService.create(createCommenttDto);
   }
 
   @Get()
   async findAll(@Res({ passthrough: true }) res): Promise<CommentEntity[]> {
-    const [comments, count] =  await this.commentService.findAll();
+    const [comments, count] = await this.commentService.findAll();
     res.header('X-Total-Count', count);
     return comments;
   }
