@@ -8,9 +8,7 @@ import { ActiveViewers } from '../../../model/src';
 })
 export class ActiveViewersService {
   readonly activeViewers$: Observable<ActiveViewers> =
-    this.activeViewersDataService.activeViewers$.pipe(
-      startWith({ activeViewers: 0 })
-    );
+    this.activeViewersDataService.activeViewers$;
 
   constructor(
     private readonly activeViewersDataService: ActiveViewersDataService

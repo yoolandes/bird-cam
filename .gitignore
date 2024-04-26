@@ -32,8 +32,9 @@ node_modules
 npm-debug.log
 yarn-error.log
 testem.log
-birdcam.log
 /typings
+birdcam*.log
+*-audit.json
 
 # System Files
 .DS_Store

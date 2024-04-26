@@ -7,6 +7,7 @@ import { LoggerService } from '@bird-cam/logger';
 
 @Injectable()
 export class ActiveViewersService {
+  activeViewers = 0;
   constructor(
     private readonly janusEventsService: JanusEventsService,
     private readonly janusAdminApiService: JanusAdminApiService,
@@ -19,6 +20,7 @@ export class ActiveViewersService {
     ])
       .pipe(
         exhaustMap(() => this.janusAdminApiService.listSessions()),
+        tap((sessions) => (this.activeViewers = sessions.length)),
         tap((sessions) => this.activeViewserWsService.send(sessions.length))
       )
       .subscribe({
