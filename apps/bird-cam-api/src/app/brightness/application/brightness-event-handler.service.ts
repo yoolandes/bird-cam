@@ -3,21 +3,22 @@ import { catchError, filter, switchMap, take, tap } from 'rxjs';
 import { LedApiService } from '../infrastructure/led-api.service';
 import { LoggerService } from '@bird-cam/logger';
 import { StreamingService } from '../../janus-events/application/streaming.service';
-import { SnapshotCaptureService } from '../../snapshot/infrastructure/snapshot-capture.service';
 import { ConfigService } from '@nestjs/config';
 import { retryBackoff } from 'backoff-rxjs';
 import { getAverageColor } from 'fast-average-color-node';
+import { SnapshotService } from '../../snapshot/application/snapshot.service';
 
 @Injectable()
 export class BrightnessEventHandlerService {
   birdcamRTSP: string;
   birdcamRTSPUsername: string;
   birdcamRTSPPassword: string;
+
   constructor(
     private readonly streamingService: StreamingService,
     private readonly ledApiService: LedApiService,
     private readonly loggerService: LoggerService,
-    private readonly snapshotCaptureService: SnapshotCaptureService,
+    private readonly snapshotService: SnapshotService,
     private readonly configService: ConfigService
   ) {
     this.birdcamRTSP = this.configService.getOrThrow<string>('BIRDCAM_RTSP');
@@ -31,15 +32,7 @@ export class BrightnessEventHandlerService {
     this.streamingService.birdcamIsStreaming$
       .pipe(
         filter((birdcamIsStreaming) => birdcamIsStreaming),
-        switchMap(() =>
-          this.snapshotCaptureService
-            .captureSnapshot(
-              this.birdcamRTSP,
-              this.birdcamRTSPUsername,
-              this.birdcamRTSPPassword
-            )
-            .pipe(take(1))
-        ),
+        switchMap(() => this.snapshotService.snapshot$.pipe(take(1))),
         switchMap((base64) => getAverageColor(Buffer.from(base64, 'base64'))),
         tap(({ value }) => this.loggerService.log(value.toString())),
         filter(({ isDark }) => isDark),

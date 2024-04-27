@@ -1,13 +1,11 @@
 import { LoggerService } from '@bird-cam/logger';
-import { createRxJsQueue } from '@bird-cam/rxjs-queue';
 import { Injectable } from '@nestjs/common';
-import { Observable, from } from 'rxjs';
-import { fromCacheWithExpiration } from '../../utils/rxjs/from-cache-with-expiration.operator';
+import { defer, finalize, Observable } from 'rxjs';
+
 const { spawn } = require('node:child_process');
 
 @Injectable()
 export class SnapshotCaptureService {
-  rxJsQueue = createRxJsQueue();
   constructor(private readonly loggerService: LoggerService) {}
 
   captureSnapshot(
@@ -57,6 +55,30 @@ export class SnapshotCaptureService {
       source.add(() => {
         ffmpeg.kill('SIGKILL');
       });
-    }).pipe(this.rxJsQueue()) as Observable<string>;
+    }).pipe(
+      finalize(() => this.loggerService.log('completed with ffmpeg')),
+      customOperator((n) => this.loggerService.log('Count updated: ' + n))
+    ) as Observable<string>;
   }
+}
+
+function customOperator(onCountUpdate = noop) {
+  return function refCountOperatorFunction(source$) {
+    let counter = 0;
+
+    return defer(() => {
+      counter++;
+      onCountUpdate(counter);
+      return source$;
+    }).pipe(
+      finalize(() => {
+        counter--;
+        onCountUpdate(counter);
+      })
+    );
+  };
+}
+
+function noop(c) {
+  return c;
 }

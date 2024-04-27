@@ -1,7 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
-import { Observable, delay, finalize, map, switchMap, tap } from 'rxjs';
+import {
+  finalize,
+  Observable,
+  ReplaySubject,
+  share,
+  switchMap,
+  tap,
+  timer,
+} from 'rxjs';
 import { Repository } from 'typeorm';
 import { StreamingService } from '../../janus-events/application/streaming.service';
 import { CreateSnapshotDto } from '../infrastructure/model/create-snapshot.dto';
@@ -17,13 +25,15 @@ export class SnapshotService {
   birdcamRTSPUsername: string;
   birdcamRTSPPassword: string;
 
+  snapshot$: Observable<string>;
+
   constructor(
     @InjectRepository(Snapshot)
     private readonly snapshotRepository: Repository<Snapshot>,
-    private readonly streamingService: StreamingService,
     private readonly snapshotCaptureService: SnapshotCaptureService,
     private readonly loggerService: LoggerService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly streamingService: StreamingService
   ) {
     this.snapshotPath = this.configService.getOrThrow<string>('SNAPSHOT_PATH');
     this.birdcamRTSP = this.configService.getOrThrow<string>('BIRDCAM_RTSP');
@@ -32,6 +42,29 @@ export class SnapshotService {
     );
     this.birdcamRTSPPassword = this.configService.getOrThrow<string>(
       'BIRDCAM_RTSP_PASSWORD'
+    );
+
+    this.snapshot$ = this.streamingService.startBirdCamForSnapshot().pipe(
+      switchMap(() =>
+        this.snapshotCaptureService.captureSnapshot(
+          this.birdcamRTSP,
+          this.birdcamRTSPUsername,
+          this.birdcamRTSPPassword
+        )
+      ),
+      tap(() => this.loggerService.info('Snapshot captured!')),
+      finalize(() => {
+        this.loggerService.info('Snapshot capturing done!');
+        this.streamingService.stopBirdCamForSnapshot().subscribe({
+          complete: () =>
+            this.loggerService.error('Completed! This can not be! Snapshot'),
+          error: (err) => this.loggerService.error(err),
+        });
+      }),
+      share({
+        resetOnRefCountZero: () => timer(60000),
+        connector: () => new ReplaySubject(2),
+      })
     );
   }
 
@@ -70,27 +103,5 @@ export class SnapshotService {
 
   async remove(id: string): Promise<void> {
     await this.snapshotRepository.delete(id);
-  }
-
-  captureSnapshot(): Observable<string> {
-    this.loggerService.info('Capturing snapshot...');
-    return this.streamingService.startBirdCamForSnapshot().pipe(
-      switchMap(() => {
-        return this.snapshotCaptureService.captureSnapshot(
-          this.birdcamRTSP,
-          this.birdcamRTSPUsername,
-          this.birdcamRTSPPassword
-        );
-      }),
-      tap(() => this.loggerService.info('Snapshot captured!')),
-      finalize(() => {
-        this.loggerService.info('Snapshot capturing done!');
-        this.streamingService.stopBirdCamForSnapshot().subscribe({
-          complete: () =>
-            this.loggerService.error('Completed! This can not be! Snapshot'),
-          error: (err) => this.loggerService.error(err),
-        });
-      })
-    );
   }
 }

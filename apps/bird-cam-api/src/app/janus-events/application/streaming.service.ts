@@ -2,15 +2,12 @@ import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import {
   BehaviorSubject,
-  Observable,
-  catchError,
   delay,
   exhaustMap,
-  filter,
   map,
+  Observable,
   of,
   switchMap,
-  takeWhile,
   tap,
 } from 'rxjs';
 import { JanusAdminApiService } from '../infrastructure/janus-admin-api.service';
@@ -53,6 +50,10 @@ export class StreamingService {
   }
 
   startBirdCamForSnapshot(): Observable<void> {
+    if (this.birdcamIsStreaming.value) {
+      this.locked = true;
+      return of(void 0);
+    }
     return this.startBirdCam().pipe(tap(() => (this.locked = true)));
   }
 
