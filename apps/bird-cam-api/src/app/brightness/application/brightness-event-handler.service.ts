@@ -1,18 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import {
-  catchError,
-  delay,
-  filter,
-  from,
-  map,
-  of,
-  skip,
-  switchMap,
-  take,
-  tap,
-} from 'rxjs';
-import { JanusEventsService } from '../../janus-events/application/janus-events.service';
-import { BrightnessEventsService } from '../brightness-events.service';
+import { catchError, filter, switchMap, take, tap } from 'rxjs';
 import { LedApiService } from '../infrastructure/led-api.service';
 import { LoggerService } from '@bird-cam/logger';
 import { StreamingService } from '../../janus-events/application/streaming.service';
@@ -57,14 +44,15 @@ export class BrightnessEventHandlerService {
         tap(({ value }) => this.loggerService.log(value.toString())),
         filter(({ isDark }) => isDark),
         switchMap(() => this.ledApiService.switchOn()),
+        tap(() => this.loggerService.info('Switched LED on')),
+        catchError((err) => {
+          this.loggerService.error(err);
+          this.loggerService.error('Can not switch on LED! Trying again...');
+          throw err;
+        }),
         retryBackoff({
           initialInterval: 1000,
           maxRetries: 3,
-        }),
-        tap(() => this.loggerService.info('Switched LED on')),
-        catchError(() => {
-          this.loggerService.error('Can not switch on LED!');
-          return of(void 0);
         })
       )
       .subscribe({
@@ -77,14 +65,15 @@ export class BrightnessEventHandlerService {
       .pipe(
         filter((birdcamIsStreaming) => !birdcamIsStreaming),
         switchMap(() => this.ledApiService.switchOff()),
+        tap(() => this.loggerService.info('Switched LED off')),
+        catchError((err) => {
+          this.loggerService.error(err);
+          this.loggerService.error('Can not switch off LED! Try again...');
+          throw err;
+        }),
         retryBackoff({
           initialInterval: 1000,
           maxRetries: 3,
-        }),
-        tap(() => this.loggerService.info('Switched LED off')),
-        catchError(() => {
-          this.loggerService.error('Can not switch off LED!');
-          return of(void 0);
         })
       )
       .subscribe({

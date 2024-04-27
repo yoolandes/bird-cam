@@ -2,6 +2,7 @@ import { LoggerService } from '@bird-cam/logger';
 import { createRxJsQueue } from '@bird-cam/rxjs-queue';
 import { Injectable } from '@nestjs/common';
 import { Observable, from } from 'rxjs';
+import { fromCacheWithExpiration } from '../../utils/rxjs/from-cache-with-expiration.operator';
 const { spawn } = require('node:child_process');
 
 @Injectable()
