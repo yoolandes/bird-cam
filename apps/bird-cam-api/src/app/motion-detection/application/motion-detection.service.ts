@@ -10,6 +10,7 @@ import {
   Observable,
   of,
   pairwise,
+  skip,
   take,
   tap,
 } from 'rxjs';
@@ -20,7 +21,8 @@ import pixelmatch from 'pixelmatch';
 
 @Injectable()
 export class MotionDetectionService {
-  private debounceTime = 1000;
+  private iterator = 0;
+  private currentDebounceTime = 0;
   private readonly maxDebounceTime = 2 * 60 * 1000;
 
   readonly motionDetected$: Observable<void>;
@@ -38,17 +40,17 @@ export class MotionDetectionService {
         filter(({ motionDetected }) => motionDetected),
         tap(
           () =>
-            (this.debounceTime = Math.min(
-              this.debounceTime * 2,
+            (this.currentDebounceTime = Math.min(
+              Math.pow(this.iterator++, 2) * 1000,
               this.maxDebounceTime
             ))
         ),
         tap(() =>
           this.loggerService.log(
-            'Current motion detect debounce time is ' + this.debounceTime
+            'Current motion detect debounce time is ' + this.currentDebounceTime
           )
         ),
-        debounce(() => interval(this.debounceTime)),
+        debounce(() => interval(this.currentDebounceTime)),
         exhaustMap(() => {
           return this.snapshotService.snapshot$.pipe(
             catchError((err) => {
@@ -56,6 +58,7 @@ export class MotionDetectionService {
               this.loggerService.error(err.message);
               return of();
             }),
+            skip(1),
             pairwise(),
             take(1),
             exhaustMap(([file1, file2]) => {
@@ -64,16 +67,25 @@ export class MotionDetectionService {
               return Promise.all([
                 sharp(input1).ensureAlpha().raw().toBuffer(),
                 sharp(input2).ensureAlpha().raw().toBuffer(),
-              ]).then(([imageData1, imageData2]) => {
-                const pixelArray1 = new Uint8Array(imageData1.buffer);
-                const pixelArray2 = new Uint8Array(imageData2.buffer);
+              ])
+                .then(([imageData1, imageData2]) => {
+                  const pixelArray1 = new Uint8Array(imageData1.buffer);
+                  const pixelArray2 = new Uint8Array(imageData2.buffer);
 
-                return pixelmatch(pixelArray1, pixelArray2, null, 640, 480, {
-                  threshold: 0.2,
+                  return pixelmatch(pixelArray1, pixelArray2, null, 640, 480, {
+                    threshold: 0.2,
+                  });
+                })
+                .catch((err) => {
+                  this.loggerService.error('Can not calc Pixel match');
+                  this.loggerService.error(err);
+                  return 0;
                 });
-              });
             }),
-            tap(() => (this.debounceTime = 1000)),
+            tap((pixelmatch) =>
+              this.loggerService.log('Pixelmatch: ' + pixelmatch)
+            ),
+            tap(() => (this.iterator = 0)),
             filter((pixelmatch) => pixelmatch > 5000)
           );
         }),

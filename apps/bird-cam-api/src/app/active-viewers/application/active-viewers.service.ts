@@ -28,7 +28,7 @@ export class ActiveViewersService {
           this.loggerService.error(
             'Completed! This can not be! Active Viewers'
           ),
-        error: (err) => this.loggerService.error(err),
+        error: (err) => this.loggerService.error(err + 'active viewers'),
       });
   }
 }
