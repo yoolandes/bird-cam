@@ -2,9 +2,8 @@ services:
   janusstreaming:
     build: .
     volumes:
-      - /portainer/Files/AppData/Config/nginx-proxy-manager/letsencrypt:/etc/letsencrypt
-      - /home/pi/janus-streaming/configs:/opt/janus/etc/janus
-      - /home/pi/janus-streaming/recordings:/home/recordings
+      - /home/letsencrypt:/etc/letsencrypt
+      - /home/robert/janusStreaming/configs:/opt/janus/etc/janus
     tty: true
-    network_mode: "host"    
-    restart: always  
+    network_mode: "host"
+    restart: always

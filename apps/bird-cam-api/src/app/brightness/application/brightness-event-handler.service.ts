@@ -10,7 +10,6 @@ import { SnapshotService } from '../../snapshot/application/snapshot.service';
 
 @Injectable()
 export class BrightnessEventHandlerService {
-  birdcamRTSP: string;
   birdcamRTSPUsername: string;
   birdcamRTSPPassword: string;
 
@@ -21,7 +20,6 @@ export class BrightnessEventHandlerService {
     private readonly snapshotService: SnapshotService,
     private readonly configService: ConfigService
   ) {
-    this.birdcamRTSP = this.configService.getOrThrow<string>('BIRDCAM_RTSP');
     this.birdcamRTSPUsername = this.configService.getOrThrow<string>(
       'BIRDCAM_RTSP_USERNAME'
     );

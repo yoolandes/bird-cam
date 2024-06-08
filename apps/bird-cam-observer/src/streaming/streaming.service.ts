@@ -1,57 +1,75 @@
-import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { ChildProcess, spawn } from 'child_process';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  map,
+  Observable,
+  of,
+  skip,
+  switchMap,
+  take,
+  tap,
+} from 'rxjs';
+import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class StreamingService {
-  private streamProcess: ChildProcess | undefined;
+  private readonly baseUrl = 'http://127.0.0.1:9997/v3/config/paths';
 
-  constructor(private readonly loggerService: LoggerService) {}
+  private readonly isStreaming = new BehaviorSubject(false);
+  readonly isStreaming$ = this.isStreaming.asObservable();
 
-  startStream(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.streamProcess) {
-        return resolve();
-      }
+  constructor(private readonly httpService: HttpService) {}
 
-      this.streamProcess = spawn('v4l2rtspserver', [
-        '-F10',
-        '-W 640',
-        '-H 480',
-        '-P 8555',
-        '-C 1',
-        '/dev/video0,hw:1,0',
-      ]);
+  startStream(): Observable<void> {
+    return this.httpService
+      .post<void>(`${this.baseUrl}/add/cam`, {
+        source: 'rpiCamera',
+        runOnReady:
+          'gst-launch-1.0 rtspclientsink name=s location=rtsp://localhost:$RTSP_PORT/cam_with_audio rtspsrc location=rtsp://127.0.0.1:$RTSP_PORT/$MTX_PATH latency=0 ! rtph264depay ! s. alsasrc ! queue ! audioconvert ! opusenc ! s.sink_1',
+      })
+      .pipe(
+        switchMap(() =>
+          this.isStreaming$.pipe(
+            skip(1),
+            filter((isStreaming) => isStreaming),
+            take(1)
+          )
+        ),
+        map(() => void 0),
+        catchError((err) => {
+          if (err.error === 'path already exists') {
+            return of(void 0);
+          } else {
+            return of(err);
+          }
+        })
+      );
+  }
 
-      this.streamProcess.stdout.on('data', (data: string) => {
-        this.loggerService.log(`stdout: ${data}`);
-      });
-
-      this.streamProcess.stderr.on('data', (data: string) => {
-        this.loggerService.log(`stderr: ${data}`);
-        if (data.includes('Transport: RTP/AVP/UDP;')) {
-          this.loggerService.log('resolved');
-          resolve();
+  stopStream(): Observable<void> {
+    return this.httpService.delete<void>(`${this.baseUrl}/delete/cam`).pipe(
+      switchMap(() =>
+        this.isStreaming$.pipe(
+          skip(1),
+          filter((isStreaming) => !isStreaming),
+          take(1)
+        )
+      ),
+      map(() => void 0),
+      catchError((err) => {
+        if (err.error === 'path not found') {
+          return of(void 0);
+        } else {
+          return of(err);
         }
-      });
-    });
+      }),
+      tap(() => this.setStreaming(false))
+    );
   }
 
-  stopStream(): Promise<void> {
-    return new Promise((resolve) => {
-      if (!this.streamProcess) {
-        return resolve();
-      }
-      this.streamProcess.on('close', (code, signal) => {
-        resolve();
-        this.loggerService.log(`child process exited with code ${signal}`);
-        this.streamProcess = undefined;
-      });
-      this.streamProcess.kill('SIGKILL');
-    });
-  }
-
-  isStreaming(): boolean {
-    return !!this.streamProcess;
+  setStreaming(isStreaming: boolean): void {
+    this.isStreaming.next(isStreaming);
   }
 }

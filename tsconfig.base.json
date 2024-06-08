@@ -44,6 +44,7 @@
         "libs/motion-activity/model/src/index.ts"
       ],
       "@bird-cam/motion-activity/ui": ["libs/motion-activity/ui/src/index.ts"],
+      "@bird-cam/offline-handler": ["libs/offline-handler/src/index.ts"],
       "@bird-cam/push-subscriber": ["libs/push-subscriber/src/index.ts"],
       "@bird-cam/push-subscriber/application": [
         "libs/push-subscriber/application/src/index.ts"

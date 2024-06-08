@@ -5,6 +5,7 @@ import {
   finalize,
   Observable,
   ReplaySubject,
+  retry,
   share,
   switchMap,
   tap,
@@ -45,6 +46,11 @@ export class SnapshotService {
     );
 
     this.snapshot$ = this.streamingService.startBirdCamForSnapshot().pipe(
+      retry({
+        resetOnSuccess: true,
+        delay: 5000,
+        count: 4,
+      }),
       switchMap(() =>
         this.snapshotCaptureService.captureSnapshot(
           this.birdcamRTSP,

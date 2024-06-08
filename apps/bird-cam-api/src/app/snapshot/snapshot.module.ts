@@ -9,6 +9,7 @@ import { Snapshot } from './infrastructure/model/snapshot.entity';
 import { JanusEventsModule } from '../janus-events/janus-events.module';
 import { SnapshotCaptureService } from './infrastructure/snapshot-capture.service';
 import { LoggerModule } from '@bird-cam/logger';
+import { IntervalSnapshotService } from './application/interval-snapshot.service';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -38,7 +39,11 @@ const storage = multer.diskStorage({
     LoggerModule,
   ],
   controllers: [SnapshotController],
-  providers: [SnapshotService, SnapshotCaptureService],
+  providers: [SnapshotService, SnapshotCaptureService, IntervalSnapshotService],
   exports: [SnapshotService, SnapshotCaptureService],
 })
-export class SnapshotModule {}
+export class SnapshotModule {
+  constructor(
+    private readonly intervalSnapshotService: IntervalSnapshotService
+  ) {}
+}

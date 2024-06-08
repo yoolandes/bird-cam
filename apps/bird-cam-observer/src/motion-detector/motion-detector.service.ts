@@ -5,7 +5,7 @@ import { createGpio } from '../utils/gpio';
 
 @Injectable()
 export class MotionDetectorService {
-  private readonly motionSensor = createGpio(4, 'in', 'both');
+  private readonly motionSensor = createGpio(516, 'in', 'both');
 
   private readonly motionDetected = new BehaviorSubject<boolean>(false);
   readonly motionDetected$ = this.motionDetected

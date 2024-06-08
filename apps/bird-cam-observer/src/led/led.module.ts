@@ -9,4 +9,4 @@ import { LedService } from './led.service';
   controllers: [LedController],
   providers: [LedService],
 })
-export class LedModule { }
+export class LedModule {}

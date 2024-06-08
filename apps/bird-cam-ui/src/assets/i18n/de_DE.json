@@ -1,5 +1,9 @@
 {
   "app": {
     "title": "Birdcam"
+  },
+  "offlineHandler": {
+    "header": "Hoppla",
+    "message": "Irgendetwas ist mächtig schief gelaufen. Schau doch später noch mal rein."
   }
 }
