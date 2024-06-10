@@ -37,6 +37,11 @@
             "glob": "**/*.json",
             "input": "./libs/motion-activity/ui/src/assets/i18n/",
             "output": "/assets/i18n/motion-activity"
+          },
+          {
+            "glob": "**/*.json",
+            "input": "./libs/push-subscriber/ui/src/assets/i18n/",
+            "output": "/assets/i18n/push-subscriber"
           }
         ],
         "styles": [
