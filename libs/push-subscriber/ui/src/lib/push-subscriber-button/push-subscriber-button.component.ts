@@ -18,7 +18,7 @@ export class PushSubscriberButtonComponent {
     private readonly toastController: ToastController,
     private readonly translocoService: TranslocoService
   ) {
-    this.extracted();
+    this.showToastOnSubscriptionChange();
   }
 
   subscribe(): void {
@@ -29,18 +29,18 @@ export class PushSubscriberButtonComponent {
     this.pushSubscriberService.unsubscribe();
   }
 
-  private extracted() {
-    this.pushSubscriberService.showSubscription$
-      .pipe(skip(1))
-      .subscribe((showSubscription) => {
-        const translationKey = showSubscription
-          ? 'pushSubscriber.subscribed'
-          : 'pushSubscriber.unsubscribed';
-        this.toastController
-          .create({
-            message: this.translocoService.translate(translationKey),
-          })
-          .then((toast) => toast.present());
-      });
+  private showToastOnSubscriptionChange() {
+    this.swPush.subscription.pipe(skip(1)).subscribe((showSubscription) => {
+      const translationKey = showSubscription
+        ? 'pushSubscriber.subscribed'
+        : 'pushSubscriber.unsubscribed';
+      this.toastController
+        .create({
+          message: this.translocoService.translate(translationKey),
+          animated: true,
+          duration: 5000,
+        })
+        .then((toast) => toast.present());
+    });
   }
 }
