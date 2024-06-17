@@ -7,7 +7,19 @@ export class LiveStreamFacade {
   readonly stream$ = this.liveStreamService.stream$;
   readonly liveStreamProgress$ = this.liveStreamService.progress$;
 
-  constructor(private readonly liveStreamService: LiveStreamService) {}
+  constructor(private readonly liveStreamService: LiveStreamService) {
+    this.listenToVisibilityChange();
+  }
+
+  private listenToVisibilityChange(): void {
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.stopStream();
+      } else {
+        this.startStream();
+      }
+    });
+  }
 
   startStream() {
     this.liveStreamService.startStream();
