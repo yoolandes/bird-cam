@@ -69,7 +69,8 @@ export class SnapshotService {
       }),
       share({
         resetOnRefCountZero: () => timer(60000),
-        connector: () => new ReplaySubject(2),
+        connector: () => new ReplaySubject(1),
+        resetOnComplete: false,
       })
     );
   }

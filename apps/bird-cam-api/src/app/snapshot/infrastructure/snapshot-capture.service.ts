@@ -1,6 +1,6 @@
 import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
-import { defer, finalize, Observable } from 'rxjs';
+import { finalize, Observable } from 'rxjs';
 
 const { spawn } = require('node:child_process');
 
@@ -16,16 +16,12 @@ export class SnapshotCaptureService {
     return new Observable((source) => {
       this.loggerService.info('Capturing Snapshot with FFMPEG...');
       const ffmpeg = spawn('ffmpeg', [
-        '-timeout',
-        '20000000',
-        '-rtsp_transport',
-        'tcp',
         '-i',
-        `rtsp://${username}:${password}@${rtspUrl}`,
+        `rtsp://${rtspUrl}`,
         '-f',
         'image2',
         '-r',
-        '1/10',
+        '1',
         '-update',
         '1',
         '-loglevel',
@@ -39,11 +35,14 @@ export class SnapshotCaptureService {
       });
 
       ffmpeg.stderr.on('data', (err: Buffer) => {
+        this.loggerService.log('FFMPEG data');
+        this.loggerService.log(err.toString());
         const exec = /frame=(\s*\d+)/.exec(err.toString());
         if (exec && exec.length) {
           const currentFrame = parseInt(exec[1]);
           if (currentFrame === frame && result) {
             source.next(result);
+            source.complete();
             result = '';
           }
           frame = currentFrame;
@@ -58,29 +57,7 @@ export class SnapshotCaptureService {
         ffmpeg.kill('SIGKILL');
       });
     }).pipe(
-      finalize(() => this.loggerService.log('completed with ffmpeg')),
-      customOperator((n) => this.loggerService.log('Count updated: ' + n))
+      finalize(() => this.loggerService.log('completed with ffmpeg'))
     ) as Observable<string>;
   }
-}
-
-function customOperator(onCountUpdate = noop) {
-  return function refCountOperatorFunction(source$) {
-    let counter = 0;
-
-    return defer(() => {
-      counter++;
-      onCountUpdate(counter);
-      return source$;
-    }).pipe(
-      finalize(() => {
-        counter--;
-        onCountUpdate(counter);
-      })
-    );
-  };
-}
-
-function noop(c) {
-  return c;
 }
