@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { catchError, filter, switchMap, take, tap } from 'rxjs';
+import { catchError, filter, of, switchMap, take, tap } from 'rxjs';
 import { LedApiService } from '../infrastructure/led-api.service';
 import { LoggerService } from '@bird-cam/logger';
 import { StreamingService } from '../../janus-events/application/streaming.service';
@@ -44,6 +44,10 @@ export class BrightnessEventHandlerService {
         retryBackoff({
           initialInterval: 1000,
           maxRetries: 3,
+        }),
+        catchError((err) => {
+          this.loggerService.error(err);
+          return of(void 0);
         })
       )
       .subscribe({
@@ -65,6 +69,10 @@ export class BrightnessEventHandlerService {
         retryBackoff({
           initialInterval: 1000,
           maxRetries: 3,
+        }),
+        catchError((err) => {
+          this.loggerService.error(err);
+          return of(void 0);
         })
       )
       .subscribe({
