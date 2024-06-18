@@ -4,8 +4,6 @@
   id="video"
   [srcObject]="liveStreamFacade.stream$ | async"
   (canplay)="canPlay()"
-  (pause)="liveStreamFacade.stopStream()"
-  (play)="liveStreamFacade.startStream()"
   controls
   muted
   autoplay

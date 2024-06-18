@@ -53,6 +53,9 @@ export class LiveStreamService {
     var body = { request: 'stop' };
     this.streaming.send({ message: body });
     this.streaming.hangup();
+    this.progress.next(StreamProgress.Idle);
+    this.stream.next(undefined);
+    this.streaming = undefined;
   }
 
   startStreamInternal() {
