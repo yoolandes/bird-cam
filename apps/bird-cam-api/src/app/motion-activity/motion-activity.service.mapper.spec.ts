@@ -12,7 +12,11 @@ describe('MotionActivityServiceMapper', () => {
       '2024-04-22T11:45:00Z',
     ];
 
-    const result = getHourCounts(timestamps);
+    const result = getHourCounts(
+      timestamps,
+      new Date('2024-04-22T08:15:00Z'),
+      new Date('2024-04-22T13:45:00Z')
+    );
 
     console.log(result);
   });

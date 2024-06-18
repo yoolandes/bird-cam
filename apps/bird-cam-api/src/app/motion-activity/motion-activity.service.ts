@@ -35,7 +35,9 @@ export class MotionActivityService {
       .getMany()
       .then((motionActivities) => {
         return getHourCounts(
-          motionActivities.map((motionActivity) => motionActivity.createdAt)
+          motionActivities.map((motionActivity) => motionActivity.createdAt),
+          lowerDate,
+          upperDate
         );
       });
   }
