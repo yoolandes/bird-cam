@@ -68,9 +68,9 @@ export class SnapshotService {
         });
       }),
       share({
-        resetOnRefCountZero: () => timer(60000),
+        resetOnRefCountZero: false,
         connector: () => new ReplaySubject(1),
-        resetOnComplete: false,
+        resetOnComplete: () => timer(60000),
       })
     );
   }
