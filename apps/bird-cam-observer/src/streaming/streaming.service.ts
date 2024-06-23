@@ -15,7 +15,7 @@ import { HttpService } from '@nestjs/axios';
 
 @Injectable()
 export class StreamingService {
-  private readonly baseUrl = 'http://127.0.0.1:9997/v3/config/paths';
+  private readonly baseUrl = 'http://localhost:9997/v3/config/paths';
 
   private readonly isStreaming = new BehaviorSubject(false);
   readonly isStreaming$ = this.isStreaming.asObservable();
