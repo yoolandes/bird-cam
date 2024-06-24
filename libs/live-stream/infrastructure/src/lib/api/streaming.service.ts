@@ -20,10 +20,7 @@ export class LiveStreamService {
 
   startStream(): void {
     if (this.streaming) {
-      if (this.streaming.getBitrate() === 'Invalid PeerConnection') {
-        this.startStreamInternal();
-      }
-      return;
+      this.startStreamInternal();
     }
     if (!Janus.isWebrtcSupported()) {
       this.stream.error(new Error('No Webrtc'));
@@ -53,6 +50,7 @@ export class LiveStreamService {
     var body = { request: 'stop' };
     this.streaming.send({ message: body });
     this.streaming.hangup();
+    this.janus.destroy();
     this.progress.next(StreamProgress.Idle);
     this.stream.next(undefined);
     this.streaming = undefined;
