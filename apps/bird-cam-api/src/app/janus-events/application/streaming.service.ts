@@ -82,6 +82,7 @@ export class StreamingService {
     return this.janusAdminApiService.listSessions().pipe(
       delay(5000),
       switchMap((sessions: any) => {
+        this.loggerService.log('Session count is: ' + sessions.length);
         if (!this.locked && sessions.length === 0) {
           return this.stopBirdcam();
         } else {
