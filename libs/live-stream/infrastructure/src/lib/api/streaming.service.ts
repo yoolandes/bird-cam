@@ -47,9 +47,6 @@ export class LiveStreamService {
   }
 
   stopStream() {
-    var body = { request: 'stop' };
-    this.streaming.send({ message: body });
-    this.streaming.hangup();
     this.janus.destroy();
     this.progress.next(StreamProgress.Idle);
     this.stream.next(undefined);
@@ -160,7 +157,7 @@ export class LiveStreamService {
         console.log(error);
       },
       destroyed: function () {
-        window.location.reload();
+        // window.location.reload();
       },
     });
   }
