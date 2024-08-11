@@ -34,21 +34,26 @@ export class BrightnessEventHandlerService {
         switchMap((base64) => getAverageColor(Buffer.from(base64, 'base64'))),
         tap(({ value }) => this.loggerService.log(value.toString())),
         filter(({ isDark }) => isDark),
-        switchMap(() => this.ledApiService.switchOn()),
-        tap(() => this.loggerService.info('Switched LED on')),
-        catchError((err) => {
-          this.loggerService.error(err);
-          this.loggerService.error('Can not switch on LED! Trying again...');
-          throw err;
-        }),
-        retryBackoff({
-          initialInterval: 1000,
-          maxRetries: 3,
-        }),
-        catchError((err) => {
-          this.loggerService.error(err);
-          return of(void 0);
-        })
+        switchMap(() =>
+          this.ledApiService.switchOn().pipe(
+            tap(() => this.loggerService.info('Switched LED on')),
+            catchError((err) => {
+              this.loggerService.error(err);
+              this.loggerService.error(
+                'Can not switch on LED! Trying again...'
+              );
+              throw err;
+            }),
+            retryBackoff({
+              initialInterval: 1000,
+              maxRetries: 3,
+            }),
+            catchError((err) => {
+              this.loggerService.error(err);
+              return of(void 0);
+            })
+          )
+        )
       )
       .subscribe({
         complete: () =>
@@ -59,21 +64,24 @@ export class BrightnessEventHandlerService {
     this.streamingService.birdcamIsStreaming$
       .pipe(
         filter((birdcamIsStreaming) => !birdcamIsStreaming),
-        switchMap(() => this.ledApiService.switchOff()),
-        tap(() => this.loggerService.info('Switched LED off')),
-        catchError((err) => {
-          this.loggerService.error(err);
-          this.loggerService.error('Can not switch off LED! Try again...');
-          throw err;
-        }),
-        retryBackoff({
-          initialInterval: 1000,
-          maxRetries: 3,
-        }),
-        catchError((err) => {
-          this.loggerService.error(err);
-          return of(void 0);
-        })
+        switchMap(() =>
+          this.ledApiService.switchOff().pipe(
+            catchError((err) => {
+              this.loggerService.error(err);
+              this.loggerService.error('Can not switch off LED! Try again...');
+              throw err;
+            }),
+            retryBackoff({
+              initialInterval: 1000,
+              maxRetries: 3,
+            }),
+            catchError((err) => {
+              this.loggerService.error(err);
+              return of(void 0);
+            })
+          )
+        ),
+        tap(() => this.loggerService.info('Switched LED off'))
       )
       .subscribe({
         complete: () =>
