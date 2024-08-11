@@ -21,12 +21,14 @@ export class StreamingController {
     if (res.on) {
       return this.streamingService.startStream().pipe(
         catchError((err) => {
+          this.loggerService.error(err);
           throw new BadRequestException(err);
         })
       );
     } else {
       return this.streamingService.stopStream().pipe(
         catchError((err) => {
+          this.loggerService.error(err);
           throw new BadRequestException(err);
         })
       );
