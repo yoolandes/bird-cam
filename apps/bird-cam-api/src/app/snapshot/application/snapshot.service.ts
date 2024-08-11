@@ -61,15 +61,13 @@ export class SnapshotService {
       finalize(() => {
         this.loggerService.info('Snapshot capturing done!');
         this.streamingService.stopBirdCamForSnapshot().subscribe({
-          complete: () =>
-            this.loggerService.error('Completed! This can not be! Snapshot'),
           error: (err) => this.loggerService.error(err),
         });
       }),
       share({
-        resetOnRefCountZero: false,
+        resetOnRefCountZero: () => timer(30000),
         connector: () => new ReplaySubject(1),
-        resetOnComplete: () => timer(60000),
+        resetOnComplete: false,
       })
     );
   }

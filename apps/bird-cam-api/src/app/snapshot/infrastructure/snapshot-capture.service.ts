@@ -42,7 +42,6 @@ export class SnapshotCaptureService {
           const currentFrame = parseInt(exec[1]);
           if (currentFrame === frame && result) {
             source.next(result);
-            source.complete();
             result = '';
           }
           frame = currentFrame;

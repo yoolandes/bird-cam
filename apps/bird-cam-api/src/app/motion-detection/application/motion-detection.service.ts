@@ -2,15 +2,15 @@ import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import {
   catchError,
-  debounce,
   exhaustMap,
   filter,
-  interval,
+  finalize,
   map,
   Observable,
   of,
   pairwise,
   skip,
+  switchMap,
   take,
   tap,
 } from 'rxjs';
@@ -21,9 +21,9 @@ import pixelmatch from 'pixelmatch';
 
 @Injectable()
 export class MotionDetectionService {
-  private iterator = 0;
-  private currentDebounceTime = 0;
+  private iterator = 2;
   private readonly maxDebounceTime = 2 * 60 * 1000;
+  private timeoutId: any;
 
   readonly motionDetected$: Observable<void>;
 
@@ -38,29 +38,35 @@ export class MotionDetectionService {
           this.loggerService.info('Motion detected ' + motionDetected)
         ),
         filter(({ motionDetected }) => motionDetected),
-        tap(
-          () =>
-            (this.currentDebounceTime = Math.min(
-              Math.pow(this.iterator++, 2) * 1000,
-              this.maxDebounceTime
-            ))
-        ),
-        tap(() =>
-          this.loggerService.log(
-            'Current motion detect debounce time is ' + this.currentDebounceTime
-          )
-        ),
-        debounce(() => interval(this.currentDebounceTime)),
-        exhaustMap(() => {
+        tap(() => {
+          clearTimeout(this.timeoutId);
+
+          let currentDebounceTime = Math.min(
+            Math.pow(++this.iterator, 2) * 1000,
+            this.maxDebounceTime
+          );
+
+          this.loggerService.log('currentDebounceTime: ' + currentDebounceTime);
+
+          this.timeoutId = setTimeout(() => {
+            this.iterator = 2;
+            this.loggerService.log('reset iterator to: ' + this.iterator);
+          }, currentDebounceTime);
+        }),
+        tap(() => this.loggerService.log('set iterator to: ' + this.iterator)),
+        filter(() => this.iterator <= 3),
+        switchMap(() => {
           return this.snapshotService.snapshot$.pipe(
             catchError((err) => {
               this.loggerService.error('Cant start recording');
               this.loggerService.error(err.message);
               return of();
             }),
+            tap(() => this.loggerService.log('got file')),
             skip(1),
             pairwise(),
             take(1),
+            tap(() => this.loggerService.log('Comparing two images...')),
             exhaustMap(([file1, file2]) => {
               const input1 = Buffer.from(file1, 'base64');
               const input2 = Buffer.from(file2, 'base64');
@@ -72,9 +78,16 @@ export class MotionDetectionService {
                   const pixelArray1 = new Uint8Array(imageData1.buffer);
                   const pixelArray2 = new Uint8Array(imageData2.buffer);
 
-                  return pixelmatch(pixelArray1, pixelArray2, null, 640, 480, {
-                    threshold: 0.2,
-                  });
+                  return pixelmatch(
+                    pixelArray1,
+                    pixelArray2,
+                    null,
+                    1920,
+                    1080,
+                    {
+                      threshold: 0.2,
+                    }
+                  );
                 })
                 .catch((err) => {
                   this.loggerService.error('Can not calc Pixel match');
@@ -85,11 +98,18 @@ export class MotionDetectionService {
             tap((pixelmatch) =>
               this.loggerService.log('Pixelmatch: ' + pixelmatch)
             ),
-            tap(() => (this.iterator = 0)),
+            catchError((e) => {
+              this.loggerService.error('Error while calculating pixelmatch');
+              this.loggerService.error(JSON.stringify(e));
+              return of(0);
+            }),
             filter((pixelmatch) => pixelmatch > 5000)
           );
         }),
-        map(() => void 0)
+        map(() => void 0),
+        finalize(() =>
+          this.loggerService.log('Completed! This can not be! motionDetected$')
+        )
       );
 
     this.motionDetected$
