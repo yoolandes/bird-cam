@@ -5,7 +5,6 @@ import {
   finalize,
   Observable,
   ReplaySubject,
-  retry,
   share,
   switchMap,
   tap,
@@ -18,6 +17,7 @@ import { Snapshot } from '../infrastructure/model/snapshot.entity';
 import { SnapshotCaptureService } from '../infrastructure/snapshot-capture.service';
 import { LoggerService } from '@bird-cam/logger';
 import { ConfigService } from '@nestjs/config';
+import { retryBackoff } from 'backoff-rxjs';
 
 @Injectable()
 export class SnapshotService {
@@ -46,11 +46,6 @@ export class SnapshotService {
     );
 
     this.snapshot$ = this.streamingService.startBirdCamForSnapshot().pipe(
-      retry({
-        resetOnSuccess: true,
-        delay: 5000,
-        count: 4,
-      }),
       switchMap(() =>
         this.snapshotCaptureService.captureSnapshot(
           this.birdcamRTSP,
@@ -58,6 +53,10 @@ export class SnapshotService {
           this.birdcamRTSPPassword
         )
       ),
+      retryBackoff({
+        initialInterval: 5000,
+        maxInterval: 1000 * 15,
+      }),
       tap(() => this.loggerService.info('Snapshot captured!')),
       finalize(() => {
         this.loggerService.info('Snapshot capturing done!');
