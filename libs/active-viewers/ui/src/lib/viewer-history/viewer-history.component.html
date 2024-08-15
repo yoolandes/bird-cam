@@ -1,0 +1,15 @@
+<ion-item>
+  <ion-label>
+    <h2>{{ 'activeViewers.history.title' | transloco }}</h2>
+    <div style="display: block">
+      <canvas
+        baseChart
+        [type]="'line'"
+        [data]="$any(lineChartData$ | async)"
+        [options]="lineChartOptions"
+        [legend]="false"
+      >
+      </canvas>
+    </div>
+  </ion-label>
+</ion-item>

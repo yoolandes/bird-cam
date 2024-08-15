@@ -16,6 +16,10 @@ export class SnapshotCaptureService {
     return new Observable((source) => {
       this.loggerService.info('Capturing Snapshot with FFMPEG...');
       const ffmpeg = spawn('ffmpeg', [
+        '-timeout',
+        '20000000',
+        '-rtsp_transport',
+        'tcp',
         '-i',
         `rtsp://${rtspUrl}`,
         '-f',
@@ -31,6 +35,8 @@ export class SnapshotCaptureService {
       let result = '';
       let frame = 0;
       ffmpeg.stdout.on('data', (data: Buffer) => {
+        this.loggerService.log(typeof data);
+        this.loggerService.log('got real data');
         result += data.toString('base64');
       });
 
@@ -40,7 +46,7 @@ export class SnapshotCaptureService {
         const exec = /frame=(\s*\d+)/.exec(err.toString());
         if (exec && exec.length) {
           const currentFrame = parseInt(exec[1]);
-          if (currentFrame === frame && result) {
+          if (currentFrame !== frame && result) {
             source.next(result);
             result = '';
           }

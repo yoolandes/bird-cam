@@ -1,6 +1,6 @@
-import { getHourCounts } from './motion-activity.service.mapper';
+import { getHourCounts } from './hours-count';
 
-describe('MotionActivityServiceMapper', () => {
+describe('Get Hours Count', () => {
   it('should ', () => {
     const timestamps = [
       '2024-04-22T10:15:00Z',

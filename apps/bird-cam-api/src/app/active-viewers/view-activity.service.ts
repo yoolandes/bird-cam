@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MotionActivityEntity } from './motion-activity.entity';
+import { ViewActivityEntity } from './view-activity.entity';
 import { getHourCounts } from '../utils/statistics/hours-count';
 
 @Injectable()
-export class MotionActivityService {
+export class ViewActivityService {
   constructor(
-    @InjectRepository(MotionActivityEntity)
-    private readonly activityEntityRepository: Repository<MotionActivityEntity>
+    @InjectRepository(ViewActivityEntity)
+    private readonly viewEntityRepository: Repository<ViewActivityEntity>
   ) {}
 
   create(): any {
-    return this.activityEntityRepository.save(new MotionActivityEntity());
+    return this.viewEntityRepository.save(new ViewActivityEntity());
   }
 
   async findAllFromLastHours(
@@ -26,16 +26,16 @@ export class MotionActivityService {
     const lowerDate = new Date(upperDate.getTime());
     lowerDate.setHours(lowerDate.getHours() - hours);
 
-    return this.activityEntityRepository
+    return this.viewEntityRepository
       .createQueryBuilder('entity')
       .where(
         'entity.createdAt >= :lowerDate AND entity.createdAt < :upperDate',
         { lowerDate, upperDate }
       )
       .getMany()
-      .then((motionActivities) => {
+      .then((viewActivities) => {
         return getHourCounts(
-          motionActivities.map((motionActivity) => motionActivity.createdAt),
+          viewActivities.map((viewActivity) => viewActivity.createdAt),
           lowerDate,
           upperDate
         );
