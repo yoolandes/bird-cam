@@ -16,20 +16,16 @@ export class SnapshotCaptureService {
     return new Observable((source) => {
       this.loggerService.info('Capturing Snapshot with FFMPEG...');
       const ffmpeg = spawn('ffmpeg', [
-        '-timeout',
-        '20000000',
         '-rtsp_transport',
         'tcp',
         '-i',
         `rtsp://${rtspUrl}`,
-        '-f',
-        'image2',
-        '-r',
-        '1',
         '-update',
         '1',
         '-loglevel',
         'info',
+        '-f',
+        'image2',
         'pipe:',
       ]);
       let result = '';

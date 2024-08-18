@@ -31,7 +31,19 @@ export class BrightnessEventHandlerService {
       .pipe(
         filter((birdcamIsStreaming) => birdcamIsStreaming),
         switchMap(() => this.snapshotService.snapshot$.pipe(take(1))),
-        switchMap((base64) => getAverageColor(Buffer.from(base64, 'base64'))),
+        tap((base64) =>
+          this.snapshotService.createFromFile(base64, new Date())
+        ),
+        tap(() => this.loggerService.log('Checking brightness...')),
+        switchMap((base64) =>
+          getAverageColor(Buffer.from(base64, 'base64')).catch((err) => {
+            this.loggerService.log('getAverageColor failed');
+            return {
+              isDark: true,
+              value: '',
+            };
+          })
+        ),
         tap(({ value }) => this.loggerService.log(value.toString())),
         filter(({ isDark }) => isDark),
         switchMap(() =>
