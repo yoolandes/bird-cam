@@ -31,14 +31,12 @@ export class SnapshotCaptureService {
       let result = '';
       let frame = 0;
       ffmpeg.stdout.on('data', (data: Buffer) => {
-        this.loggerService.log(typeof data);
         this.loggerService.log('got real data');
         result += data.toString('base64');
       });
 
       ffmpeg.stderr.on('data', (err: Buffer) => {
         this.loggerService.log('FFMPEG data');
-        this.loggerService.log(err.toString());
         const exec = /frame=(\s*\d+)/.exec(err.toString());
         if (exec && exec.length) {
           const currentFrame = parseInt(exec[1]);

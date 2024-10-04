@@ -46,6 +46,7 @@ export class SnapshotService {
     );
 
     this.snapshot$ = this.streamingService.startBirdCamForSnapshot().pipe(
+      tap(() => this.loggerService.info('Try tp capture snapshot')),
       switchMap(() =>
         this.snapshotCaptureService.captureSnapshot(
           this.birdcamRTSP,

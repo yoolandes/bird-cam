@@ -2,6 +2,7 @@ import { LoggerService } from '@bird-cam/logger';
 import { Injectable } from '@nestjs/common';
 import {
   BehaviorSubject,
+  catchError,
   delay,
   exhaustMap,
   map,
@@ -14,6 +15,7 @@ import { JanusAdminApiService } from '../infrastructure/janus-admin-api.service'
 import { JanusStreamingApiService } from '../infrastructure/janus-streaming-api.service';
 import { StreamingApiService } from '../infrastructure/streaming-api.service';
 import { JanodeService } from './janode-api.service';
+import { retryBackoff } from 'backoff-rxjs';
 
 @Injectable()
 export class StreamingService {
@@ -50,7 +52,9 @@ export class StreamingService {
   }
 
   startBirdCamForSnapshot(): Observable<void> {
+    this.loggerService.log('Staring birdcam for snapshot...');
     if (this.birdcamIsStreaming.value) {
+      this.loggerService.log('Staring birdcam for snapshot...');
       this.locked = true;
       return of(void 0);
     }
@@ -60,6 +64,14 @@ export class StreamingService {
   startBirdCam(): Observable<void> {
     this.loggerService.info('Starting birdcam...');
     return this.streamingApiService.start().pipe(
+      catchError((err: Error) => {
+        this.loggerService.error('Can not start Birdcam. Trying again...');
+        throw err;
+      }),
+      retryBackoff({
+        initialInterval: 1000,
+        maxInterval: 1000 * 30,
+      }),
       tap(() => this.loggerService.info('Birdcam started!')),
       tap(() => this.birdcamIsStreaming.next(true))
     );
@@ -68,6 +80,14 @@ export class StreamingService {
   private stopBirdcam(): Observable<void> {
     this.loggerService.info('Stopping birdcam...');
     return this.streamingApiService.stop().pipe(
+      catchError((err: Error) => {
+        this.loggerService.error('Can not stop Birdcam. Trying again...');
+        throw err;
+      }),
+      retryBackoff({
+        initialInterval: 1000,
+        maxInterval: 1000 * 30,
+      }),
       tap(() => this.loggerService.info('Birdcam stopped!')),
       tap(() => this.birdcamIsStreaming.next(false))
     );
