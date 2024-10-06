@@ -22,6 +22,7 @@ export class MotionActivityService {
     upperDate.setMinutes(0);
     upperDate.setSeconds(0);
     upperDate.setMilliseconds(0);
+    upperDate.setHours(upperDate.getHours() + 1);
 
     const lowerDate = new Date(upperDate.getTime());
     lowerDate.setHours(lowerDate.getHours() - hours);
