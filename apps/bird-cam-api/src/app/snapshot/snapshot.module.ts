@@ -5,7 +5,7 @@ import { SnapshotController } from './infrastructure/snapshot.controller';
 import multer from 'multer';
 
 import { SnapshotService } from './application/snapshot.service';
-import { Snapshot } from './infrastructure/model/snapshot.entity';
+import { SnapshotEntity } from './infrastructure/model/snapshot.entity';
 import { JanusEventsModule } from '../janus-events/janus-events.module';
 import { SnapshotCaptureService } from './infrastructure/snapshot-capture.service';
 import { LoggerModule } from '@bird-cam/logger';
@@ -32,7 +32,7 @@ const storage = multer.diskStorage({
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Snapshot]),
+    TypeOrmModule.forFeature([SnapshotEntity]),
     MulterModule.register({
       storage,
       limits: {

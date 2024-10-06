@@ -1,7 +1,10 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Snapshot, SnapshotCause } from '@bird-cam/snapshot/model';
 
-@Entity()
-export class Snapshot {
+@Entity({
+  name: 'snapshot',
+})
+export class SnapshotEntity implements Snapshot {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -11,5 +14,10 @@ export class Snapshot {
   @Column()
   date: Date;
 
- }
- 
+  @Column({
+    type: 'enum',
+    enum: SnapshotCause,
+    nullable: true,
+  })
+  snapshotCause: SnapshotCause;
+}

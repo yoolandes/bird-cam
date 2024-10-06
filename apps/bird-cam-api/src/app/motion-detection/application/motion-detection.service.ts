@@ -18,6 +18,7 @@ import { SnapshotService } from '../../snapshot/application/snapshot.service';
 import { MotionDetectionEventsService } from '../motion-detection-events.service';
 import sharp from 'sharp';
 import pixelmatch from 'pixelmatch';
+import { SnapshotCause } from '@bird-cam/snapshot/model';
 
 @Injectable()
 export class MotionDetectionService {
@@ -117,7 +118,11 @@ export class MotionDetectionService {
           this.snapshotService.snapshot$.pipe(
             tap((base64: string) => {
               this.loggerService.log('Created Snapshot from file!');
-              this.snapshotService.createFromFile(base64, new Date());
+              this.snapshotService.createFromFile(
+                base64,
+                new Date(),
+                SnapshotCause.Motion
+              );
             }),
             take(1),
             catchError((err) => {

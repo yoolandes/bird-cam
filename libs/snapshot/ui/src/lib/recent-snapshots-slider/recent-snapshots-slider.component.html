@@ -1,12 +1,12 @@
 <swiper-container
-  #swiperContainer
   [pagination]="{ enabled: true }"
   [centeredSlides]="true"
   [modules]="swiperModules"
   [slidesPerView]="1.2"
+  [spaceBetween]="10"
 >
   <swiper-slide *ngFor="let slide of images$ | async">
-    <ion-card>
+    <ion-card class="m-0">
       <img [src]="slide" />
     </ion-card>
   </swiper-slide>

@@ -2,6 +2,7 @@ import { catchError, finalize, of, switchMap, take, tap, timer } from 'rxjs';
 import { LoggerService } from '@bird-cam/logger';
 import { SnapshotService } from './snapshot.service';
 import { Injectable } from '@nestjs/common';
+import { SnapshotCause } from '@bird-cam/snapshot/model';
 
 @Injectable()
 export class IntervalSnapshotService {
@@ -16,7 +17,11 @@ export class IntervalSnapshotService {
           this.snapshotService.snapshot$.pipe(
             take(1),
             tap((base64) =>
-              this.snapshotService.createFromFile(base64, new Date())
+              this.snapshotService.createFromFile(
+                base64,
+                new Date(),
+                SnapshotCause.Interval
+              )
             ),
             catchError((err) => {
               this.loggerService.error('Cant take Interval snapshot');

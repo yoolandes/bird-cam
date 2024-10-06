@@ -5,6 +5,7 @@ import { catchError, exhaustMap, map } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SnapshotsActions } from './snapshots.actions';
 import { SnapshotDataService } from '../snapshot-data.service';
+import { SnapshotCause } from '@bird-cam/snapshot/model';
 
 @Injectable()
 export class SnapshotsEffects {
@@ -21,6 +22,7 @@ export class SnapshotsEffects {
           .getSnapshots({
             limit: 10,
             sortBy: ['date:DESC'],
+            'filter.snapshotCause': '$eq:' + SnapshotCause.Motion,
           })
           .pipe(
             map((snapshots) =>

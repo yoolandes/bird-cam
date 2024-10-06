@@ -17,7 +17,7 @@ import {
 import { Repository } from 'typeorm';
 import { StreamingService } from '../../janus-events/application/streaming.service';
 import { CreateSnapshotDto } from '../infrastructure/model/create-snapshot.dto';
-import { Snapshot } from '../infrastructure/model/snapshot.entity';
+import { SnapshotEntity } from '../infrastructure/model/snapshot.entity';
 import { SnapshotCaptureService } from '../infrastructure/snapshot-capture.service';
 import { LoggerService } from '@bird-cam/logger';
 import { ConfigService } from '@nestjs/config';
@@ -25,6 +25,7 @@ import { retryBackoff } from 'backoff-rxjs';
 import { SnapshotApiService } from '../infrastructure/snapshot-api.service';
 import { LedApiService } from '../infrastructure/led-api.service';
 import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
+import { SnapshotCause } from '@bird-cam/snapshot/model';
 
 @Injectable()
 export class SnapshotService {
@@ -36,8 +37,8 @@ export class SnapshotService {
   snapshot$: Observable<string>;
 
   constructor(
-    @InjectRepository(Snapshot)
-    private readonly snapshotRepository: Repository<Snapshot>,
+    @InjectRepository(SnapshotEntity)
+    private readonly snapshotRepository: Repository<SnapshotEntity>,
     private readonly snapshotCaptureService: SnapshotCaptureService,
     private readonly loggerService: LoggerService,
     private readonly configService: ConfigService,
@@ -111,8 +112,8 @@ export class SnapshotService {
     );
   }
 
-  create(createSnapshotDto: CreateSnapshotDto): Promise<Snapshot> {
-    const snapshot = new Snapshot();
+  create(createSnapshotDto: CreateSnapshotDto): Promise<SnapshotEntity> {
+    const snapshot = new SnapshotEntity();
 
     snapshot.filePath = createSnapshotDto.filePath;
     snapshot.date = new Date(createSnapshotDto.date);
@@ -120,8 +121,12 @@ export class SnapshotService {
     return this.snapshotRepository.save(snapshot);
   }
 
-  createFromFile(base64: string, date: Date): Promise<Snapshot> {
-    const snapshot = new Snapshot();
+  createFromFile(
+    base64: string,
+    date: Date,
+    snapshotCause: SnapshotCause
+  ): Promise<SnapshotEntity> {
+    const snapshot = new SnapshotEntity();
     const filePath =
       this.snapshotPath +
       Date.now() +
@@ -132,18 +137,22 @@ export class SnapshotService {
 
     snapshot.filePath = filePath;
     snapshot.date = date;
+    snapshot.snapshotCause = snapshotCause;
 
     return this.snapshotRepository.save(snapshot);
   }
 
-  async findAll(query: PaginateQuery): Promise<Paginated<Snapshot>> {
+  async findAll(query: PaginateQuery): Promise<Paginated<SnapshotEntity>> {
     return paginate(query, this.snapshotRepository, {
-      sortableColumns: ['id', 'date', 'filePath'],
-      select: ['id', 'filePath', 'date'],
+      sortableColumns: ['id', 'date', 'filePath', 'snapshotCause'],
+      select: ['id', 'filePath', 'date', 'snapshotCause'],
+      filterableColumns: {
+        snapshotCause: true,
+      },
     });
   }
 
-  findOne(id: number): Promise<Snapshot> {
+  findOne(id: number): Promise<SnapshotEntity> {
     return this.snapshotRepository.findOneBy({ id: id });
   }
 
