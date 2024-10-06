@@ -62,7 +62,8 @@
       ],
       "@bird-cam/snapshot/infrastructure": [
         "libs/snapshot/infrastructure/src/index.ts"
-      ]
+      ],
+      "@bird-cam/snapshot/ui": ["libs/snapshot/ui/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
