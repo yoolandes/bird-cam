@@ -15,6 +15,7 @@ import { Express } from 'express';
 import { SnapshotService } from '../application/snapshot.service';
 import { CreateSnapshotDto } from './model/create-snapshot.dto';
 import { Snapshot } from './model/snapshot.entity';
+import { Paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Controller('snapshot')
 export class SnapshotController {
@@ -31,8 +32,8 @@ export class SnapshotController {
   }
 
   @Get()
-  findAll(): Promise<Snapshot[]> {
-    return this.snapshotService.findAll();
+  findAll(@Paginate() query: PaginateQuery): Promise<Paginated<Snapshot>> {
+    return this.snapshotService.findAll(query);
   }
 
   @Get(':id')

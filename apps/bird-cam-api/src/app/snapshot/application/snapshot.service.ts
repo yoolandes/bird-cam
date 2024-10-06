@@ -24,6 +24,7 @@ import { ConfigService } from '@nestjs/config';
 import { retryBackoff } from 'backoff-rxjs';
 import { SnapshotApiService } from '../infrastructure/snapshot-api.service';
 import { LedApiService } from '../infrastructure/led-api.service';
+import { paginate, Paginated, PaginateQuery } from 'nestjs-paginate';
 
 @Injectable()
 export class SnapshotService {
@@ -135,8 +136,11 @@ export class SnapshotService {
     return this.snapshotRepository.save(snapshot);
   }
 
-  async findAll(): Promise<Snapshot[]> {
-    return this.snapshotRepository.find();
+  async findAll(query: PaginateQuery): Promise<Paginated<Snapshot>> {
+    return paginate(query, this.snapshotRepository, {
+      sortableColumns: ['id', 'date', 'filePath'],
+      select: ['id', 'filePath', 'date'],
+    });
   }
 
   findOne(id: number): Promise<Snapshot> {

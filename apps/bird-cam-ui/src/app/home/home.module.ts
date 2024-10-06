@@ -9,6 +9,7 @@ import { LiveStreamUiModule } from 'libs/live-stream/ui/src';
 import { ActiveViewersUiModule } from '@bird-cam/active-viewers/ui';
 import { PushSubscriberUiModule } from '@bird-cam/push-subscriber/ui';
 import { MotionActivityUiModule } from '@bird-cam/motion-activity/ui';
+import { SnapshotUiModule } from '@bird-cam/snapshot/ui';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import { MotionActivityUiModule } from '@bird-cam/motion-activity/ui';
     ActiveViewersUiModule,
     PushSubscriberUiModule,
     MotionActivityUiModule,
+    SnapshotUiModule,
   ],
   declarations: [HomePage],
 })

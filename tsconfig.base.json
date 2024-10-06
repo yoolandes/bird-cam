@@ -63,6 +63,7 @@
       "@bird-cam/snapshot/infrastructure": [
         "libs/snapshot/infrastructure/src/index.ts"
       ],
+      "@bird-cam/snapshot/model": ["libs/snapshot/model/src/index.ts"],
       "@bird-cam/snapshot/ui": ["libs/snapshot/ui/src/index.ts"]
     }
   },

@@ -3,6 +3,7 @@ import { map, Observable } from 'rxjs';
 import { ChartConfiguration, ChartOptions } from 'chart.js';
 import { DatePipe } from '@angular/common';
 import { ActiveViewersFacadeService } from '@bird-cam/active-viewers/infrastructure';
+import { ModalController } from '@ionic/angular';
 
 @Component({
   selector: 'bird-cam-viewer-history',
@@ -38,7 +39,8 @@ export class ViewerHistoryComponent implements OnInit {
 
   constructor(
     private readonly activeViewersFacadeService: ActiveViewersFacadeService,
-    private readonly datePipe: DatePipe
+    private readonly datePipe: DatePipe,
+    readonly modalController: ModalController
   ) {
     this.lineChartData$ = this.activeViewersFacadeService.activeViewers.pipe(
       map((activeViewers) => ({
