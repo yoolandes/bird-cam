@@ -10,6 +10,10 @@ import { JanusEventsModule } from '../janus-events/janus-events.module';
 import { SnapshotCaptureService } from './infrastructure/snapshot-capture.service';
 import { LoggerModule } from '@bird-cam/logger';
 import { IntervalSnapshotService } from './application/interval-snapshot.service';
+import { LedApiService } from './infrastructure/led-api.service';
+import { SnapshotApiService } from './infrastructure/snapshot-api.service';
+import { ConfigModule } from '@nestjs/config';
+import { HttpModule } from '@nestjs/axios';
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -37,9 +41,17 @@ const storage = multer.diskStorage({
     }),
     JanusEventsModule,
     LoggerModule,
+    ConfigModule,
+    HttpModule,
   ],
   controllers: [SnapshotController],
-  providers: [SnapshotService, SnapshotCaptureService, IntervalSnapshotService],
+  providers: [
+    SnapshotService,
+    SnapshotCaptureService,
+    IntervalSnapshotService,
+    LedApiService,
+    SnapshotApiService,
+  ],
   exports: [SnapshotService, SnapshotCaptureService],
 })
 export class SnapshotModule {

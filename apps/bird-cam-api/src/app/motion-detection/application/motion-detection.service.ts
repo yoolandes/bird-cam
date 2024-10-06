@@ -26,6 +26,7 @@ export class MotionDetectionService {
   private timeoutId: any;
 
   readonly motionDetected$: Observable<void>;
+  readonly realMotionDetected$: Observable<void>;
 
   constructor(
     private readonly motionDetectionEventsService: MotionDetectionEventsService,
@@ -55,70 +56,67 @@ export class MotionDetectionService {
         }),
         tap(() => this.loggerService.log('set iterator to: ' + this.iterator)),
         filter(() => this.iterator <= 3),
-        switchMap(() => {
-          return this.snapshotService.snapshot$.pipe(
-            catchError((err) => {
-              this.loggerService.error('Cant start recording');
-              this.loggerService.error(err.message);
-              return of();
-            }),
-            tap(() => this.loggerService.log('got file')),
-            skip(1),
-            pairwise(),
-            take(1),
-            tap(() => this.loggerService.log('Comparing two images...')),
-            exhaustMap(([file1, file2]) => {
-              const input1 = Buffer.from(file1, 'base64');
-              const input2 = Buffer.from(file2, 'base64');
-              return Promise.all([
-                sharp(input1).ensureAlpha().raw().toBuffer(),
-                sharp(input2).ensureAlpha().raw().toBuffer(),
-              ])
-                .then(([imageData1, imageData2]) => {
-                  const pixelArray1 = new Uint8Array(imageData1.buffer);
-                  const pixelArray2 = new Uint8Array(imageData2.buffer);
-
-                  return pixelmatch(
-                    pixelArray1,
-                    pixelArray2,
-                    null,
-                    1920,
-                    1080,
-                    {
-                      threshold: 0.2,
-                    }
-                  );
-                })
-                .catch((err) => {
-                  this.loggerService.error('Can not calc Pixel match');
-                  this.loggerService.error(err);
-                  return 0;
-                });
-            }),
-            tap((pixelmatch) =>
-              this.loggerService.log('Pixelmatch: ' + pixelmatch)
-            ),
-            catchError((e) => {
-              this.loggerService.error('Error while calculating pixelmatch');
-              this.loggerService.error(JSON.stringify(e));
-              return of(0);
-            }),
-            filter((pixelmatch) => pixelmatch > 5000)
-          );
-        }),
-        map(() => void 0),
-        finalize(() =>
-          this.loggerService.log('Completed! This can not be! motionDetected$')
-        )
+        map(() => void 0)
       );
+
+    this.realMotionDetected$ = this.motionDetected$.pipe(
+      switchMap(() => {
+        return this.snapshotService.snapshot$.pipe(
+          catchError((err) => {
+            this.loggerService.error('Cant start recording');
+            this.loggerService.error(err.message);
+            return of();
+          }),
+          tap(() => this.loggerService.log('got file')),
+          skip(1),
+          pairwise(),
+          take(1),
+          tap(() => this.loggerService.log('Comparing two images...')),
+          exhaustMap(([file1, file2]) => {
+            const input1 = Buffer.from(file1, 'base64');
+            const input2 = Buffer.from(file2, 'base64');
+            return Promise.all([
+              sharp(input1).ensureAlpha().raw().toBuffer(),
+              sharp(input2).ensureAlpha().raw().toBuffer(),
+            ])
+              .then(([imageData1, imageData2]) => {
+                const pixelArray1 = new Uint8Array(imageData1.buffer);
+                const pixelArray2 = new Uint8Array(imageData2.buffer);
+
+                return pixelmatch(pixelArray1, pixelArray2, null, 1920, 1080, {
+                  threshold: 0.2,
+                });
+              })
+              .catch((err) => {
+                this.loggerService.error('Can not calc Pixel match');
+                this.loggerService.error(err);
+                return 0;
+              });
+          }),
+          tap((pixelmatch) =>
+            this.loggerService.log('Pixelmatch: ' + pixelmatch)
+          ),
+          catchError((e) => {
+            this.loggerService.error('Error while calculating pixelmatch');
+            this.loggerService.error(JSON.stringify(e));
+            return of(0);
+          }),
+          filter((pixelmatch) => pixelmatch > 5000)
+        );
+      }),
+      map(() => void 0),
+      finalize(() =>
+        this.loggerService.log('Completed! This can not be! motionDetected$')
+      )
+    );
 
     this.motionDetected$
       .pipe(
-        tap(() => this.loggerService.log('Real motion detected')),
+        tap(() => this.loggerService.log('Motion detected')),
         exhaustMap(() =>
           this.snapshotService.snapshot$.pipe(
             tap((base64: string) => {
-              this.loggerService.log('Create Snapshot from file');
+              this.loggerService.log('Created Snapshot from file!');
               this.snapshotService.createFromFile(base64, new Date());
             }),
             take(1),

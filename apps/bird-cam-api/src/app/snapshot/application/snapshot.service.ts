@@ -2,11 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as fs from 'fs';
 import {
+  catchError,
+  exhaustMap,
   finalize,
+  map,
   Observable,
   ReplaySubject,
   share,
   switchMap,
+  take,
   tap,
   timer,
 } from 'rxjs';
@@ -18,6 +22,8 @@ import { SnapshotCaptureService } from '../infrastructure/snapshot-capture.servi
 import { LoggerService } from '@bird-cam/logger';
 import { ConfigService } from '@nestjs/config';
 import { retryBackoff } from 'backoff-rxjs';
+import { SnapshotApiService } from '../infrastructure/snapshot-api.service';
+import { LedApiService } from '../infrastructure/led-api.service';
 
 @Injectable()
 export class SnapshotService {
@@ -34,7 +40,9 @@ export class SnapshotService {
     private readonly snapshotCaptureService: SnapshotCaptureService,
     private readonly loggerService: LoggerService,
     private readonly configService: ConfigService,
-    private readonly streamingService: StreamingService
+    private readonly streamingService: StreamingService,
+    private readonly snapshotApiService: SnapshotApiService,
+    private readonly ledApiService: LedApiService
   ) {
     this.snapshotPath = this.configService.getOrThrow<string>('SNAPSHOT_PATH');
     this.birdcamRTSP = this.configService.getOrThrow<string>('BIRDCAM_RTSP');
@@ -45,7 +53,14 @@ export class SnapshotService {
       'BIRDCAM_RTSP_PASSWORD'
     );
 
-    this.snapshot$ = this.streamingService.startBirdCamForSnapshot().pipe(
+    const getSnapShotLocally$ = this.ledApiService.switchOn().pipe(
+      exhaustMap(() => this.snapshotApiService.getSnapshot()),
+      exhaustMap((snapshot) =>
+        this.ledApiService.switchOff().pipe(map(() => snapshot))
+      )
+    );
+
+    const snappi$ = this.streamingService.startBirdCamForSnapshot().pipe(
       tap(() => this.loggerService.info('Try tp capture snapshot')),
       switchMap(() =>
         this.snapshotCaptureService.captureSnapshot(
@@ -64,12 +79,34 @@ export class SnapshotService {
         this.streamingService.stopBirdCamForSnapshot().subscribe({
           error: (err) => this.loggerService.error(err),
         });
+      })
+    );
+
+    this.snapshot$ = this.streamingService.birdcamIsStreaming$.pipe(
+      take(1),
+      switchMap((birdcamIsStreaming) => {
+        if (!birdcamIsStreaming) {
+          this.loggerService.log('Take snapshot locally...');
+          return getSnapShotLocally$.pipe(
+            catchError(() => {
+              this.loggerService.error('Cant take snapshot locally!');
+              return snappi$;
+            }),
+            tap(() => this.loggerService.log('Take snapshot locally!'))
+          );
+        } else {
+          return snappi$;
+        }
       }),
       share({
-        resetOnRefCountZero: () => timer(30000),
+        resetOnRefCountZero: () => {
+          this.loggerService.error('Ref count is zero!');
+          return timer(30000);
+        },
         connector: () => new ReplaySubject(1),
-        resetOnComplete: false,
-      })
+        resetOnComplete: () => timer(30000),
+      }),
+      finalize(() => this.loggerService.log('Ref count  completed!'))
     );
   }
 

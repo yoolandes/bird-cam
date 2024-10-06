@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PushSubscriptionService } from '../../push-subscription/push-subscription.service';
 import { LoggerService } from '@bird-cam/logger';
 import { MotionDetectionEventsService } from '../motion-detection-events.service';
-import { catchError, EMPTY, exhaustMap } from 'rxjs';
+import { catchError, EMPTY, exhaustMap, throttleTime } from 'rxjs';
 
 @Injectable()
 export class PushMotionNotificationService {
@@ -13,6 +13,7 @@ export class PushMotionNotificationService {
   ) {
     this.motionDetectionService.motionDetected$
       .pipe(
+        throttleTime(1000 * 60 * 5),
         exhaustMap(() => {
           return this.pushSubscriptionService
             .sendNotification('Es tut sich was im Vogelhaus', 'Bewegung')
