@@ -10,6 +10,7 @@ import { ActiveViewersUiModule } from '@bird-cam/active-viewers/ui';
 import { PushSubscriberUiModule } from '@bird-cam/push-subscriber/ui';
 import { MotionActivityUiModule } from '@bird-cam/motion-activity/ui';
 import { SnapshotUiModule } from '@bird-cam/snapshot/ui';
+import { AppVersionComponent } from '@bird-cam/app-version/ui';
 
 @NgModule({
   imports: [
@@ -22,6 +23,7 @@ import { SnapshotUiModule } from '@bird-cam/snapshot/ui';
     PushSubscriberUiModule,
     MotionActivityUiModule,
     SnapshotUiModule,
+    AppVersionComponent,
   ],
   declarations: [HomePage],
 })

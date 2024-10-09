@@ -26,6 +26,7 @@
       ],
       "@bird-cam/active-viewers/ui": ["libs/active-viewers/ui/src/index.ts"],
       "@bird-cam/activer-viewers": ["libs/activer-viewers/src/index.ts"],
+      "@bird-cam/app-version/ui": ["libs/app-version/ui/src/index.ts"],
       "@bird-cam/comments/infrastructure": [
         "libs/comments/infrastructure/src/index.ts"
       ],
