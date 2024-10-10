@@ -1,6 +1,10 @@
-<ion-item>
+<ion-item detail="true" lines="none" (click)="openCommentsList()">
   <ion-label>
     <h2>{{ 'motionActivity.title' | transloco }}</h2>
+  </ion-label>
+</ion-item>
+<ion-item>
+  <ion-label>
     <div style="display: block">
       <canvas
         baseChart

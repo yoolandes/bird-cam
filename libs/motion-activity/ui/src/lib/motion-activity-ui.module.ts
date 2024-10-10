@@ -5,6 +5,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { IonicModule } from '@ionic/angular';
 import { MotionActivityInfrastructureModule } from '@bird-cam/motion-activity/infrastructure';
 import { provideTranslocoScope, TranslocoPipe } from '@ngneat/transloco';
+import { MotionActivityListComponent } from './motion-activity-list/motion-activity-list.component';
 
 @NgModule({
   imports: [
@@ -14,7 +15,7 @@ import { provideTranslocoScope, TranslocoPipe } from '@ngneat/transloco';
     MotionActivityInfrastructureModule,
     TranslocoPipe,
   ],
-  declarations: [MotionActivityComponent],
+  declarations: [MotionActivityComponent, MotionActivityListComponent],
   exports: [MotionActivityComponent],
   providers: [provideTranslocoScope('motion-activity'), DatePipe],
 })

@@ -1,0 +1,17 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalController.dismiss()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      {{ 'activeViewers.history.title' | transloco }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <video id="videoPlayer" controls autoplay>
+    <source src="api/timelapse" type="video/mp4" />
+  </video>
+</ion-content>

@@ -146,8 +146,10 @@ export class SnapshotService {
     return paginate(query, this.snapshotRepository, {
       sortableColumns: ['id', 'date', 'filePath', 'snapshotCause'],
       select: ['id', 'filePath', 'date', 'snapshotCause'],
+      maxLimit: 500,
       filterableColumns: {
         snapshotCause: true,
+        date: true,
       },
     });
   }
