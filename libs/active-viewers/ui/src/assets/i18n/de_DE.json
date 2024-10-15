@@ -1,5 +1,6 @@
 {
   "activeViewers": "Aktuell {{count}} Zuschauer",
+  "viewer": "Zuschauer",
   "history": {
     "title": "Zuschaueraktivität"
   }

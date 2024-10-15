@@ -6,12 +6,43 @@
       </ion-button>
     </ion-buttons>
     <ion-title>
-      {{ 'activeViewers.history.title' | transloco }}
+      {{ 'motionActivity.title' | transloco }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
 <ion-content>
-  <video id="videoPlayer" controls autoplay>
-    <source src="api/timelapse" type="video/mp4" />
-  </video>
+  <ion-list>
+    <ion-item lines="none">
+      <ion-label>
+        <h2>{{ 'motionActivity.movements' | transloco }}</h2>
+      </ion-label>
+    </ion-item>
+    <div style="display: block" class="ion-margin">
+      <canvas
+        height="75"
+        baseChart
+        [type]="'line'"
+        [data]="$any(lineChartData$ | async)"
+        [options]="lineChartOptions"
+        [legend]="false"
+      >
+      </canvas>
+    </div>
+  </ion-list>
+  <ion-list class="mt-1">
+    <ion-item lines="none">
+      <ion-label>
+        <h2>{{ 'motionActivity.timelapse' | transloco }}</h2>
+      </ion-label>
+    </ion-item>
+    <video
+      class="block w-full"
+      id="video"
+      controls
+      muted
+      loop
+      preload="auto"
+      src="api/timelapse"
+    ></video>
+  </ion-list>
 </ion-content>

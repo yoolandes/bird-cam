@@ -1,9 +1,9 @@
-<ion-item detail="true"
-          lines="none"
-          (click)="openCommentsList()">
-    <ion-label>
-        <h2>{{'comments.title' | transloco }} <ion-note>{{commentsFacade.commentsCount$ | async}}</ion-note>
-        </h2>
-        <p>{{(commentsFacade.mostRecentComment$ | async)?.text}}</p>
-    </ion-label>
+<ion-item detail="true" lines="none" (click)="openCommentsList()">
+  <ion-label>
+    <h2>
+      {{ 'comments.title' | transloco }}
+      <ion-note>{{ commentsFacade.commentsCount$ | async }}</ion-note>
+    </h2>
+    <p>{{ (commentsFacade.mostRecentComment$ | async)?.text }}</p>
+  </ion-label>
 </ion-item>

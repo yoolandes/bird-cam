@@ -1,13 +1,15 @@
-<swiper-container
-  [pagination]="{ enabled: true }"
-  [centeredSlides]="true"
-  [modules]="swiperModules"
-  [slidesPerView]="1.2"
-  [spaceBetween]="10"
->
-  <swiper-slide *ngFor="let slide of images$ | async">
-    <ion-card class="m-0">
-      <img [src]="slide" />
-    </ion-card>
-  </swiper-slide>
-</swiper-container>
+<div style="display: block">
+  <swiper-container
+    [pagination]="{ enabled: true }"
+    [centeredSlides]="false"
+    [modules]="swiperModules"
+    [slidesPerView]="1.1"
+    [spaceBetween]="-25"
+  >
+    <swiper-slide *ngFor="let slide of images$ | async">
+      <ion-card class="mr-0 mt-0 mb-0 last:mr-4 first:ml-4">
+        <img [src]="slide" />
+      </ion-card>
+    </swiper-slide>
+  </swiper-container>
+</div>

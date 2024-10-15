@@ -6,6 +6,7 @@ import { IonicModule } from '@ionic/angular';
 import { MotionActivityInfrastructureModule } from '@bird-cam/motion-activity/infrastructure';
 import { provideTranslocoScope, TranslocoPipe } from '@ngneat/transloco';
 import { MotionActivityListComponent } from './motion-activity-list/motion-activity-list.component';
+import { SnapshotUiModule } from '@bird-cam/snapshot/ui';
 
 @NgModule({
   imports: [
@@ -14,6 +15,7 @@ import { MotionActivityListComponent } from './motion-activity-list/motion-activ
     IonicModule,
     MotionActivityInfrastructureModule,
     TranslocoPipe,
+    SnapshotUiModule,
   ],
   declarations: [MotionActivityComponent, MotionActivityListComponent],
   exports: [MotionActivityComponent],

@@ -1,3 +1,6 @@
 {
-    "title": "Tagesaktivität"
+  "title": "Aktivität",
+  "recentActivities": "Kürzliche Aktivitäten",
+  "movements": "Bewegungserkennungen",
+  "timelapse": "Zeitraffer"
 }

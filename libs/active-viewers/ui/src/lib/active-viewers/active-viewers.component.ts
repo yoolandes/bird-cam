@@ -13,7 +13,7 @@ export class ActiveViewersComponent {
     readonly activeViewersService: ActiveViewersService
   ) {}
 
-  async openCommentsList(): Promise<void> {
+  async openDetails(): Promise<void> {
     const modal = await this.modalController.create({
       component: ViewerHistoryComponent,
       breakpoints: [0, 0.66, 1],

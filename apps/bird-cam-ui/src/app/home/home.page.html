@@ -7,7 +7,7 @@
           alt="Birdcam Logo"
           src="assets/icon/favicon.png"
         />
-        <span>{{'app.title' | transloco }}</span>
+        <span>{{ 'app.title' | transloco }}</span>
       </div>
     </ion-title>
     <ion-buttons slot="end">
@@ -21,15 +21,11 @@
 </ion-header>
 <ion-content>
   <bird-cam-live-stream></bird-cam-live-stream>
-  <ion-card class="ion-margin-horizontal">
+  <ion-list>
     <bird-cam-active-viewers></bird-cam-active-viewers>
-  </ion-card>
-  <ion-card class="ion-margin-horizontal">
     <bird-cam-comments-preview></bird-cam-comments-preview>
-  </ion-card>
-  <ion-card class="ion-margin-horizontal">
+  </ion-list>
+  <ion-list class="mt-1">
     <bird-cam-motion-activity></bird-cam-motion-activity>
-  </ion-card>
-  <bird-cam-recent-snapshots-slider></bird-cam-recent-snapshots-slider>
-  <div class="mb-10"></div>
+  </ion-list>
 </ion-content>
