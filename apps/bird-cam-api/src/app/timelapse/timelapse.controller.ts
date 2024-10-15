@@ -19,23 +19,11 @@ export class TimelapseController {
   @Header('Content-Type', 'video/mp4')
   async getFile(@Headers('range') range, @Res() res: Response) {
     const videoPath = this.timelapseService.getTimelapse();
-
-    // Gesamtgröße in Bytes
     const { size } = fs.statSync(videoPath);
-    console.log('size');
-    console.log(size);
-    const chunksize = 10 ** 6;
-    console.log('size');
-    console.log(size);
-    // Größe
-    const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    console.log('start');
-    console.log(start);
 
-    const end = Math.min(size, start + chunksize) - 1;
-    console.log('end');
-    console.log(end);
+    let [start, end] = range.replace(/bytes=/, '').split('-');
+    start = parseInt(start, 10);
+    end = end ? parseInt(end, 10) : size - 1;
 
     const readStreamfile = fs.createReadStream(videoPath, {
       start,
@@ -44,7 +32,7 @@ export class TimelapseController {
     });
     const head = {
       'Content-Range': `bytes ${start}-${end}/${size}`,
-      'Content-Length': chunksize,
+      'Content-Length': end - start + 1,
     };
     res.writeHead(HttpStatus.PARTIAL_CONTENT, head);
     readStreamfile.pipe(res);
