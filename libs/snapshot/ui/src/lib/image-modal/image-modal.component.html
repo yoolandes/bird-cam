@@ -1,0 +1,27 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="end">
+      <ion-button (click)="modalController.dismiss()"
+        ><ion-icon icon="close"></ion-icon
+      ></ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <swiper-container
+    #swiperContainer
+    class="h-full"
+    [initialSlide]="3"
+    [pagination]="true"
+    [zoom]="true"
+    [modules]="swiperModules"
+    zoom-max-ratio="3"
+    zoom-min-ratio="1"
+  >
+    <swiper-slide *ngFor="let slide of images$ | async">
+      <div class="swiper-zoom-container">
+        <img [src]="slide" />
+      </div>
+    </swiper-slide>
+  </swiper-container>
+</ion-content>

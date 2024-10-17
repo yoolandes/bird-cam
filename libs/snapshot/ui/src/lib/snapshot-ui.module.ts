@@ -7,6 +7,7 @@ import { SnapshotApplicationModule } from '@bird-cam/snapshot/application';
 import { BaseChartDirective } from 'ng2-charts';
 import { IonicModule } from '@ionic/angular';
 import { TranslocoPipe } from '@ngneat/transloco';
+import { ImageModalComponent } from './image-modal/image-modal.component';
 
 register();
 
@@ -20,7 +21,7 @@ register();
     TranslocoPipe,
     NgOptimizedImage,
   ],
-  declarations: [RecentSnapshotsSliderComponent],
+  declarations: [RecentSnapshotsSliderComponent, ImageModalComponent],
   exports: [RecentSnapshotsSliderComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

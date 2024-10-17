@@ -6,9 +6,9 @@
     [slidesPerView]="1.1"
     [spaceBetween]="-25"
   >
-    <swiper-slide *ngFor="let slide of images$ | async">
+    <swiper-slide *ngFor="let slide of images$ | async; index as i">
       <ion-card class="mr-0 mt-0 mb-0 last:mr-4 first:ml-4">
-        <img [src]="slide" />
+        <img [src]="slide" tappable (click)="openPreview(i)" />
       </ion-card>
     </swiper-slide>
   </swiper-container>
