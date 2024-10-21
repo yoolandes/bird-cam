@@ -44,7 +44,7 @@ export class SnapshotController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
+  remove(@Param('id') id: number): Promise<void> {
     return this.snapshotService.remove(id);
   }
 }

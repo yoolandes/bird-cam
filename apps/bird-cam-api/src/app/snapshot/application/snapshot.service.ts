@@ -14,7 +14,7 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { StreamingService } from '../../janus-events/application/streaming.service';
 import { CreateSnapshotDto } from '../infrastructure/model/create-snapshot.dto';
 import { SnapshotEntity } from '../infrastructure/model/snapshot.entity';
@@ -142,6 +142,12 @@ export class SnapshotService {
     return this.snapshotRepository.save(snapshot);
   }
 
+  async find(
+    query: FindManyOptions<SnapshotEntity>
+  ): Promise<SnapshotEntity[]> {
+    return this.snapshotRepository.find(query);
+  }
+
   async findAll(query: PaginateQuery): Promise<Paginated<SnapshotEntity>> {
     return paginate(query, this.snapshotRepository, {
       sortableColumns: ['id', 'date', 'filePath', 'snapshotCause'],
@@ -158,7 +164,17 @@ export class SnapshotService {
     return this.snapshotRepository.findOneBy({ id: id });
   }
 
-  async remove(id: string): Promise<void> {
-    await this.snapshotRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    const entity = await this.findOne(id);
+    if (!entity) {
+      return;
+    }
+    try {
+      await fs.promises.unlink(entity.filePath);
+      await this.snapshotRepository.delete(id);
+    } catch (err) {
+      this.loggerService.error('Can not delete image');
+      this.loggerService.error(err);
+    }
   }
 }

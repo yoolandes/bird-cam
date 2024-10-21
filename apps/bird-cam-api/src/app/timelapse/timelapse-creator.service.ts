@@ -6,6 +6,7 @@ import { LoggerService } from '@bird-cam/logger';
 import { SnapshotCause } from '@bird-cam/snapshot/model';
 import * as fs from 'fs';
 import { join } from 'path';
+
 const { spawn } = require('node:child_process');
 
 @Injectable()
@@ -25,7 +26,7 @@ export class TimelapseCreatorService {
     this.createTimelapse();
   }
 
-  scheduleTimelapseCreation(cronSpec: string): void {
+  private scheduleTimelapseCreation(cronSpec: string): void {
     const job = schedule.scheduleJob(cronSpec, async () => {
       this.createTimelapse();
     });
@@ -43,7 +44,7 @@ export class TimelapseCreatorService {
     }
   }
 
-  createTimelapse(): any {
+  private createTimelapse(): any {
     this.loggerService.log('Creating timelapse...');
     const yesterday = new Date(new Date().getTime() - 24 * 60 * 60 * 1000);
     this.snapshotService
