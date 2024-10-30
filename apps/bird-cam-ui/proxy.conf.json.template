@@ -1,0 +1,22 @@
+{
+  "/janus": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/on": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/*": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/snapshot/*": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

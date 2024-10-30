@@ -1,0 +1,36 @@
+volumes:
+  node_modules:
+services:
+  bird-cam-observer:
+    build: .
+    depends_on:
+      mediamtx:
+        condition: service_started
+        restart: true
+    volumes:
+      - .:/home/app
+      - /dev:/dev      
+      - /run/udev:/run/udev:ro
+    #ports:
+    #  - "3000:3000"
+    tty: true
+    network_mode: host
+    privileged: true
+    restart: always
+    dns: 8.8.8.8
+    devices:
+      - "/dev/video0:/dev/video0"
+      - "/dev/vchiq:/dev/vchiq"
+    tmpfs:
+      - /dev/shm:exec
+  mediamtx:
+    build: ./mediamtx
+    tty: true
+    network_mode: host
+    privileged: true
+    tmpfs:
+      - /dev/shm:exec
+    restart: always
+    volumes:
+      - ./mediamtx.yml:/home/mediamtx.yml
+      - /run/udev:/run/udev:ro

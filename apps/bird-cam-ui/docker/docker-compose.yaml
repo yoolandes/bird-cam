@@ -1,0 +1,11 @@
+services:
+  bird-cam-ui:
+    image: nginx
+    ports:
+      - "8080:80"
+    tty: true
+    restart: always
+    volumes:
+      - /home/pi/Websites/Birdcam/default.conf:/etc/nginx/conf.d/default.conf
+      - /home/pi/Websites/Birdcam/html:	/usr/share/nginx/html
+

@@ -1,0 +1,17 @@
+volumes:
+  node_modules:
+services:
+  bird-cam-api:
+    build: .
+    volumes:
+      - .:/home/app
+    ports:
+      - "3333:3333"
+    tty: true
+    networks:
+      - birdcam
+    restart: always  
+networks:
+  birdcam:
+    name: birdcam
+    external: true

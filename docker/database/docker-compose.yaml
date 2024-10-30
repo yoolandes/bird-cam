@@ -1,0 +1,18 @@
+services:
+  bird-cam-db:
+    image: yobasystems/alpine-mariadb
+    ports:
+      - "3306:3306"
+    networks:
+      - birdcam
+    restart: always
+    environment:
+      MYSQL_DATABASE:
+      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD:
+      MYSQL_USER:
+networks:
+  birdcam:
+    name: birdcam
+    external: true
+

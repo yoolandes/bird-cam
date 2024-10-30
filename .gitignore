@@ -19,9 +19,6 @@ node_modules
 
 # IDE - VSCode
 .vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
 
 # misc
 /.sass-cache
@@ -34,6 +31,9 @@ testem.log
 /typings
 birdcam*.log
 *-audit.json
+.env
+proxy.conf.json
+configs
 
 # System Files
 .DS_Store
